@@ -8,6 +8,7 @@
 import SwiftUI
 
 @main
+@available(iOS 26.0, *)
 struct PedidoFacilApp: App {
     var body: some Scene {
         WindowGroup {
