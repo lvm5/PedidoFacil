@@ -227,11 +227,11 @@ struct ContentView: View {
                         .foregroundColor(.secondary)
                 }
                 .padding()
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24))
             }
         }
         .padding()
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24))
     }
     
     // MARK: - Price Display Section
