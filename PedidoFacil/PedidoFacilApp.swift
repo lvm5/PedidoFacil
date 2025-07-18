@@ -10,9 +10,14 @@ import SwiftUI
 @main
 @available(iOS 26.0, *)
 struct PedidoFacilApp: App {
+    @StateObject private var productModel = ProductModel()
+    @StateObject private var orderViewModel = OrderViewModel()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainTabView()
+                .environmentObject(productModel)
+                .environmentObject(orderViewModel)
         }
     }
 }

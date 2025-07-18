@@ -1,0 +1,55 @@
+//
+//  FinancialSummaryView.swift
+//  PedidoFacil
+//
+//  Created by Leandro Morais on 2025-07-17.
+//
+
+
+import SwiftUI
+
+struct FinancialSummaryView: View {
+    let orders: [OrderItem]
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("Resumo Financeiro")
+                .font(.headline)
+                .fontWeight(.semibold)
+            
+            HStack(spacing: 20) {
+                VStack(spacing: 8) {
+                    Image(systemName: "dollarsign.circle.fill")
+                        .font(.title)
+                        .foregroundColor(.blue)
+                    
+                    Text("Total Vendas")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    Text("R$ \(orders.reduce(0) { $0 + $1.totalPrice }, specifier: "%.2f")")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                }
+                
+                VStack(spacing: 8) {
+                    Image(systemName: "chart.line.uptrend.xyaxis.circle.fill")
+                        .font(.title)
+                        .foregroundColor(.green)
+                    
+                    Text("Total Lucro")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    Text("R$ \(orders.reduce(0) { $0 + $1.totalProfit }, specifier: "%.2f")")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.green)
+                }
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+    }
+}
