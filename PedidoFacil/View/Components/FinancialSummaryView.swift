@@ -9,10 +9,22 @@
 import SwiftUI
 
 struct FinancialSummaryView: View {
+    
+    @EnvironmentObject var viewModel: OrderViewModel
+    @Environment(\.colorScheme) var colorScheme
+    
     let orders: [OrderItem]
     
     var body: some View {
         VStack(spacing: 16) {
+            HeaderView(
+                title: "Lista de pedidos",
+                primaryColor: Color.accentColor,
+                onClearAll: viewModel.clearAllOrders,
+                isClearDisabled: viewModel.orders.isEmpty
+            )
+            
+            
             Text("Resumo Financeiro")
                 .font(.headline)
                 .fontWeight(.semibold)
@@ -52,4 +64,11 @@ struct FinancialSummaryView: View {
         .padding()
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
     }
+}
+ 
+#Preview {
+    FinancialSummaryView(orders: [
+        OrderItem(product: Product(name: "Produto A", purchasePrice: 10.0, sellingPrice: 15.0, packageType: "Kg", packageSize: "1kg", unitsPerPackage: 1, category: "Carnes"), quantity: 5),
+        OrderItem(product: Product(name: "Produto B", purchasePrice: 20.0, sellingPrice: 30.0, packageType: "Kg", packageSize: "1kg", unitsPerPackage: 1, category: "Frios"), quantity: 3)
+    ])
 }

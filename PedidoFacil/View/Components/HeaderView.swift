@@ -20,6 +20,7 @@ struct HeaderView: View {
                 Image(systemName: "bag.fill")
                     .font(.title2)
                     .foregroundColor(primaryColor)
+                    .padding(.horizontal)
                 
                 Text(title)
                     .font(.largeTitle)
@@ -28,12 +29,6 @@ struct HeaderView: View {
                 
                 Spacer()
                 
-//                Button(action: onClearAll) {
-//                    Image(systemName: "trash.fill")
-//                        .font(.title3)
-//                        .foregroundColor(.red)
-//                }
-//                .disabled(isClearDisabled)
             }
             .padding(.horizontal, 20)
             .padding(.top, 10)
@@ -43,4 +38,13 @@ struct HeaderView: View {
         }
         .background(.ultraThinMaterial)
     }
+}
+
+#Preview {
+    HeaderView(
+        title: "Pedido Fácil",
+        primaryColor: Color.blue,
+        onClearAll: {},
+        isClearDisabled: false
+    )
 }

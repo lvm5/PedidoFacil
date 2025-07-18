@@ -15,8 +15,6 @@ struct ActionButtonsView: View {
     var showingCalculation: Bool
     var onCalculate: () -> Void
     var onAddOrder: () -> Void
-    var primaryColor: Color
-    var secondaryColor: Color
 
     var body: some View {
         VStack(spacing: 12) {
@@ -31,15 +29,10 @@ struct ActionButtonsView: View {
                 .foregroundColor(.white)
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(
-                    LinearGradient(
-                        colors: [primaryColor, primaryColor.opacity(0.8)],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
+                .background(Color.blue)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
             }
+            .padding(.vertical, 6)
             .disabled(quantityKg.isEmpty)
 
             if showingCalculation {
@@ -85,25 +78,20 @@ struct ActionButtonsView: View {
                     .foregroundColor(.white)
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .background(
-                        LinearGradient(
-                            colors: [secondaryColor, secondaryColor.opacity(0.8)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
+                    .background(Color.green)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
+                .padding(.vertical, 6)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
     }
 }
 
-//#Preview {
-//    if #available(iOS 26.0, *) {
-//        ActionButtonsView(quantityKg: "", totalPrice: 0.0, totalProfit: 0.0, showingCalculation: true, onCalculate: Void, onAddOrder: Void, primaryColor: .primary, secondaryColor: .secondary)
-//    } else {
-//        Text("Preview not available")
-//    }
-//}
+#Preview {
+    if #available(iOS 26.0, *) {
+        ActionButtonsView(quantityKg: "", totalPrice: 0.0, totalProfit: 0.0, showingCalculation: true, onCalculate: {}, onAddOrder: {})
+    } else {
+        Text("Preview not available")
+    }
+}

@@ -82,3 +82,40 @@ struct PriceInfoView: View {
         }
     }
 }
+
+
+
+
+#if DEBUG
+struct StatefulPreviewWrapper<Value, Content: View>: View {
+    @State private var value: Value
+    var content: (Binding<Value>) -> Content
+    init(_ initialValue: Value, content: @escaping (Binding<Value>) -> Content) {
+        self._value = State(initialValue: initialValue)
+        self.content = content
+    }
+    var body: some View {
+        content($value)
+    }
+}
+
+#Preview {
+    StatefulPreviewWrapper(Product(
+        name: "Arroz",
+        purchasePrice: 20.0,
+        sellingPrice: 25.0,
+        packageType: "Pacote",
+        packageSize: "5kg",
+        unitsPerPackage: 1,
+        category: "Alimentos"
+    )) { product in
+        PriceInfoView(product: product, secondaryColor: .purple)
+            .padding()
+            .previewLayout(.sizeThatFits)
+    }
+}
+#endif
+
+
+
+

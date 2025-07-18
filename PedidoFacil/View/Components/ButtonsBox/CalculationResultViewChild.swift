@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct CalculationResultView: View {
+struct CalculationResultViewChild: View {
     let totalPrice: Double
     let totalProfit: Double
 
@@ -43,4 +43,11 @@ struct CalculationResultView: View {
         .padding()
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
     }
+}
+
+#Preview {
+    CalculationResultViewChild(
+        totalPrice: 150.0,
+        totalProfit: 35.0
+    )
 }

@@ -15,24 +15,34 @@ struct CurrentOrderListView: View {
     let removeOrder: (OrderItem) -> Void
 
     var body: some View {
-        ForEach(orders) { order in
-            VStack(alignment: .leading) {
-                Text(order.product.name)
-                    .fontWeight(.semibold)
+        GroupBox {
+            VStack {
+                ForEach(orders) { order in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(order.product.name)
+                            .fontWeight(.semibold)
 
-                if let brand = order.product.brand {
-                    Text("Marca: \(brand)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        if let brand = order.product.brand {
+                            Text("Marca: \(brand)")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+
+                        Text("Quantidade: \(String(format: "%.2f", order.quantity)) kg")
+                            .font(.caption)
+
+                        Text("Total: R$ \(String(format: "%.2f", order.totalPrice))")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    //.background(Material.ultraThinMaterial)
+                    .cornerRadius(12)
+                    .padding(.vertical, 8)
+                    .frame(maxWidth: .infinity)
                 }
-
-                Text("Quantidade: \(String(format: "%.2f", order.quantity)) kg")
-                    .font(.caption)
-
-                Text("Total: R$ \(String(format: "%.2f", order.totalPrice))")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
             }
+            .padding(.horizontal, 20)
         }
     }
 }

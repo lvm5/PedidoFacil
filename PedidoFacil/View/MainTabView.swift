@@ -14,27 +14,27 @@ struct MainTabView: View {
     
     var body: some View {
         TabView {
-            HomeView() // separado
+            HomeView()
                 .tabItem {
                     Label("Início", systemImage: "house")
                 }
             
-            OrdersView() // separado
+            OrdersView()
                 .tabItem {
                     Label("Pedidos", systemImage: "doc.plaintext")
                 }
             
-            PurchaseSuggestionsView(primaryColor: .blue) // agrupado
+            PurchaseSuggestionsView(primaryColor: .blue)
                 .tabItem {
                     Label("Compra", systemImage: "shippingbox")
                 }
 
-            ProductsView() // agrupado
+            ProductsView()
                 .tabItem {
                     Label("Produtos", systemImage: "cart")
                 }
 
-            ProfitView() // agrupado
+            ProfitView()
                 .tabItem {
                     Label("Lucros", systemImage: "chart.bar")
                 }

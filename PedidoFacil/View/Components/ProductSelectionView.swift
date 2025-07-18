@@ -17,15 +17,12 @@ struct ProductSelectionView: View {
     @Binding var showingCalculation: Bool
 
     
-    private let primaryColor = Color(red: 0.3, green: 0.4, blue: 0.9)
-    private let secondaryColor = Color(red: 0.9, green: 0.3, blue: 0.4)
-    
     var body: some View {
         // MARK: - Product Selection Section
             VStack(spacing: 16) {
                 HStack {
                     Image(systemName: "cart.fill")
-                        .foregroundColor(primaryColor)
+                        .foregroundColor(.accentColor)
                     Text("Selecionar Produto")
                         .font(.headline)
                         .fontWeight(.semibold)
@@ -84,3 +81,10 @@ struct ProductSelectionView: View {
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24))
         }
     }
+
+#Preview {
+    ProductSelectionView(
+        selectedProduct: .constant(sampleProducts.first ?? Product(name: "Produto Exemplo", purchasePrice: 0, sellingPrice: 0, packageType: "", packageSize: "", unitsPerPackage: 0, category: "")),
+        showingCalculation: .constant(false)
+    )
+}

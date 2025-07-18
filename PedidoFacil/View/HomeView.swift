@@ -60,8 +60,8 @@ struct HomeView: View {
                                     viewModel.addOrder()
                                 },
                                 onAddOrder: viewModel.addOrder,
-                                primaryColor: primaryColor,
-                                secondaryColor: secondaryColor
+//                                primaryColor: primaryColor,
+//                                secondaryColor: secondaryColor
                             )
                             
                             // Seção de pedidos
