@@ -10,7 +10,7 @@ import SwiftUI
 
 struct PurchaseSuggestionsView: View {
     @EnvironmentObject var viewModel: OrderViewModel
-    let primaryColor: Color
+    var primaryColor: Color
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -66,8 +66,9 @@ struct PurchaseSuggestionsView: View {
 }
 
 #Preview {
-    PurchaseSuggestionsView()
+    PurchaseSuggestionsView(primaryColor: .blue)
         .environmentObject(OrderViewModel())
         .padding()
         .previewLayout(.sizeThatFits)
 }
+

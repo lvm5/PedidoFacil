@@ -24,7 +24,7 @@ struct MainTabView: View {
                     Label("Pedidos", systemImage: "doc.plaintext")
                 }
             
-            PurchaseSuggestionsView() // agrupado
+            PurchaseSuggestionsView(primaryColor: .blue) // agrupado
                 .tabItem {
                     Label("Compra", systemImage: "shippingbox")
                 }
