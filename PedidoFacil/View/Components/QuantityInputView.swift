@@ -32,7 +32,7 @@ struct QuantityInputView: View {
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
-                        .stroke(primaryColor.opacity(0.3), lineWidth: 1)
+                        .stroke(primaryColor.opacity(0.1), lineWidth: 1)
                 )
             
             Text("Digite a quantidade em kg")
@@ -41,5 +41,17 @@ struct QuantityInputView: View {
         }
         .padding()
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+    }
+}
+ 
+
+/// PREVIEW
+struct QuantityInputView_Previews: PreviewProvider {
+    @State static var previewQuantity = "1.50"
+    
+    static var previews: some View {
+        QuantityInputView(quantityKg: $previewQuantity, primaryColor: .blue)
+            .padding()
+            .previewLayout(.sizeThatFits)
     }
 }

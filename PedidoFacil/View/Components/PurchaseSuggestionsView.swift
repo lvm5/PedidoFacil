@@ -10,9 +10,18 @@ import SwiftUI
 
 struct PurchaseSuggestionsView: View {
     @EnvironmentObject var viewModel: OrderViewModel
-
+    let primaryColor: Color
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            
+            HeaderView(
+                title: "Total dos pedidos",
+                primaryColor: primaryColor,
+                onClearAll: viewModel.clearAllOrders,
+                isClearDisabled: viewModel.orders.isEmpty
+            )
+            
             Text("📦 Lista de Compras Sugerida")
                 .font(.headline)
 
@@ -26,6 +35,7 @@ struct PurchaseSuggestionsView: View {
                         .font(.subheadline)
                 }
             }
+
 
             Divider()
 
@@ -52,4 +62,12 @@ struct PurchaseSuggestionsView: View {
         .padding()
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
     }
+
+}
+
+#Preview {
+    PurchaseSuggestionsView()
+        .environmentObject(OrderViewModel())
+        .padding()
+        .previewLayout(.sizeThatFits)
 }

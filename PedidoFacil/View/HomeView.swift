@@ -19,7 +19,7 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                BackgroundView()
+                //BackgroundView()
                 
                 VStack(spacing: 0) {
                     // Header com título

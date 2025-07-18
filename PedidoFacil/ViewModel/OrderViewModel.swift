@@ -191,6 +191,9 @@ class OrderViewModel: ObservableObject {
         return text
     }
     
+    func removeClientOrder(at offsets: IndexSet) {
+        clientOrders.remove(atOffsets: offsets)
+    }
     
     /// CALL TEXT (SENT TO CLIENT)
     func receiptText(for order: ClientOrder) -> String {

@@ -16,6 +16,7 @@ struct PedidoFacilApp: App {
     var body: some Scene {
         WindowGroup {
             MainTabView()
+                .background(BackgroundView())
                 .environmentObject(productModel)
                 .environmentObject(orderViewModel)
         }

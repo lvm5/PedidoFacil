@@ -13,12 +13,7 @@ struct OrderDetailView: View {
     
     // Computed property para receber o texto formatado do pedido
     var receiptText: String {
-        var receipt = "Pedido para: \(order.clientName)\n\n"
-        for item in order.items {
-            receipt += "- \(item.product.name) \(item.product.brand ?? ""): \(String(format: "%.2f", item.quantity))kg - R$ \(String(format: "%.2f", item.totalPrice))\n"
-        }
-        receipt += "\nTotal: R$ \(String(format: "%.2f", order.totalPrice))"
-        return receipt
+        OrderMessageGenerator.generateReceipt(for: order)
     }
 
     var body: some View {

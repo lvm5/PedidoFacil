@@ -17,7 +17,7 @@ struct OrdersView: View {
     
     var body: some View {
         ZStack {
-            BackgroundView()
+           // BackgroundView()
             VStack {
                 HeaderView(
                     title: "Lista de pedidos",
@@ -30,21 +30,26 @@ struct OrdersView: View {
                     List {
                         ForEach(viewModel.clientOrders.sorted(by: { $0.date > $1.date })) { order in
                             NavigationLink(destination: OrderDetailView(order: order)) {
-                                OrderRowView(order: order)
+                                OrderRowViewChild(order: order)
                             }
                         }
+                        .onDelete { indexSet in
+                            viewModel.removeClientOrder(at: indexSet)
+                        }
                     }
-//                    .scrollContentBackground(.hidden)
-//                    .background(Color.clear)
                 }
-//                .scrollContentBackground(.hidden)
-//                .background(Color.clear)
             }
             .scrollContentBackground(.hidden)
             .background(Color.clear)
         }
     }
 }
+
+
+
+
+
+
 #Preview {
     let sampleProducts: [Product] = [
         Product(name: "Produto A", purchasePrice: 10.0, sellingPrice: 15.0, packageType: "Unidade", packageSize: "1 un", unitsPerPackage: 1, category: "Categoria A", brand: nil),

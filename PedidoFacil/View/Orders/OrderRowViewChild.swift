@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct OrderRowView: View {
+struct OrderRowViewChild: View {
     var order: ClientOrder
 
     var body: some View {
@@ -26,8 +26,15 @@ struct OrderRowView: View {
     }
 }
 
+
+
+
+
+
+
+
 #Preview {
-    OrderRowView(order: ClientOrder(
+    OrderRowViewChild(order: ClientOrder(
         clientName: "João da Silva",
         date: Date(),
         items: [
