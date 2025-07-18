@@ -12,6 +12,8 @@ struct ClientOrder: Identifiable, Codable {
     var clientName: String
     var date: Date
     var items: [OrderItem]
+
+    
     
     var totalPrice: Double {
         items.reduce(0) { $0 + $1.totalPrice }
