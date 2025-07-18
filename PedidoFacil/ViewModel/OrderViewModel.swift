@@ -22,7 +22,6 @@ class OrderViewModel: ObservableObject {
     @Published var clientOrders: [ClientOrder] = []
     @Published var showClientNameField: Bool = false
     @Published var receiptText: String = ""
-    
    
     /// CALC SOLICITAR ITENS
     func calculate() {
@@ -141,6 +140,7 @@ class OrderViewModel: ObservableObject {
         generatePurchaseSuggestionsFromAllOrders()
         
         print("Pedido salvo com sucesso!")
+        saveClientOrdersToDisk()
     }
     
     /// PURCHASE LIST TOTAL
@@ -193,10 +193,60 @@ class OrderViewModel: ObservableObject {
     
     func removeClientOrder(at offsets: IndexSet) {
         clientOrders.remove(atOffsets: offsets)
+        saveClientOrdersToDisk()
     }
     
     /// CALL TEXT (SENT TO CLIENT)
     func receiptText(for order: ClientOrder) -> String {
         return OrderMessageGenerator.generateReceipt(for: order)
+    }
+
+    /// Lucro total considerando todos os pedidos de todos os clientes
+    var totalProfitFromAllClientOrders: Double {
+        clientOrders.reduce(0) { total, clientOrder in
+            total + clientOrder.items.reduce(0) { subtotal, item in
+                subtotal + (item.product.sellingPrice - item.product.purchasePrice) * item.quantity
+            }
+        }
+    }
+}
+
+#warning("Reparar e habilitar cálculo")
+/// Valor total (preço de venda) de todos os pedidos de todos os clientes
+//var totalPriceFromAllClientOrders: Double {
+//    clientOrders.reduce(0) { total, clientOrder in
+//        total + clientOrder.items.reduce(0) { subtotal, item in
+//            subtotal + (item.product.sellingPrice * item.quantity)
+//        }
+//    }
+//}
+
+// MARK: - Persistência com FileManager + JSON
+
+private extension OrderViewModel {
+    var clientOrdersFileURL: URL {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        return documentsDirectory.appendingPathComponent("clientOrders.json")
+    }
+
+    func saveClientOrdersToDisk() {
+        do {
+            let data = try JSONEncoder().encode(clientOrders)
+            try data.write(to: clientOrdersFileURL)
+            print("✅ Pedidos salvos com sucesso.")
+        } catch {
+            print("❌ Erro ao salvar pedidos: \(error)")
+        }
+    }
+
+    func loadClientOrdersFromDisk() {
+        do {
+            let data = try Data(contentsOf: clientOrdersFileURL)
+            let savedOrders = try JSONDecoder().decode([ClientOrder].self, from: data)
+            clientOrders = savedOrders
+            print("📥 Pedidos carregados com sucesso.")
+        } catch {
+            print("⚠️ Nenhum pedido salvo encontrado ou erro ao carregar: \(error)")
+        }
     }
 }

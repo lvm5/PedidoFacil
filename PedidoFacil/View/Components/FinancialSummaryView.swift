@@ -17,14 +17,6 @@ struct FinancialSummaryView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            HeaderView(
-                title: "Lista de pedidos",
-                primaryColor: Color.accentColor,
-                onClearAll: viewModel.clearAllOrders,
-                isClearDisabled: viewModel.orders.isEmpty
-            )
-            
-            
             Text("Resumo Financeiro")
                 .font(.headline)
                 .fontWeight(.semibold)
@@ -39,7 +31,8 @@ struct FinancialSummaryView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                     
-                    Text("R$ \(orders.reduce(0) { $0 + $1.totalPrice }, specifier: "%.2f")")
+#warning("Reparar e habilitar cálculo")
+                    Text("Total: R$ \(viewModel.totalPrice, specifier: "%.2f")")
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
@@ -54,7 +47,7 @@ struct FinancialSummaryView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                     
-                    Text("R$ \(orders.reduce(0) { $0 + $1.totalProfit }, specifier: "%.2f")")
+                    Text("Lucro: R$ \(viewModel.totalProfitFromAllClientOrders, specifier: "%.2f")")
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.green)
@@ -65,7 +58,7 @@ struct FinancialSummaryView: View {
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
     }
 }
- 
+
 #Preview {
     FinancialSummaryView(orders: [
         OrderItem(product: Product(name: "Produto A", purchasePrice: 10.0, sellingPrice: 15.0, packageType: "Kg", packageSize: "1kg", unitsPerPackage: 1, category: "Carnes"), quantity: 5),

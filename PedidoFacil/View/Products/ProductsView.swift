@@ -18,37 +18,38 @@ struct ProductsView: View {
     private let secondaryColor = Color(red: 0.9, green: 0.3, blue: 0.4)
     
     var body: some View {
-        ZStack {
-            BackgroundView()
-            VStack {
-                HeaderView(
-                    title: "Lista de produtos",
-                    primaryColor: primaryColor,
-                    onClearAll: viewModel.clearAllOrders,
-                    isClearDisabled: viewModel.orders.isEmpty
-                )
-                
-                // Seção de preços
-                if let index = productModel.products.firstIndex(where: { $0.id == viewModel.selectedProduct.id }) {
-                    PriceInfoView(
-                        product: $productModel.products[index],
-                        secondaryColor: secondaryColor)
-                }
-                    List {
-                        ForEach(productModel.products) { product in
-                            ProductRowView(product: product, secondaryColor: secondaryColor)
-                        }
-                        .onDelete { indexSet in
-                            indexSet.forEach { index in
-                                let product = productModel.products[index]
-                                productModel.delete(product)
-                            }
-                        }
-                    }
-                    .scrollContentBackground(.hidden)
-                    .navigationTitle("Produtos")
+        VStack {
+            HeaderView(
+                title: "Lista de produtos",
+                primaryColor: primaryColor,
+                onClearAll: viewModel.clearAllOrders,
+                isClearDisabled: viewModel.orders.isEmpty
+            )
+            
+            // Seção de preços
+            if let index = productModel.products.firstIndex(where: { $0.id == viewModel.selectedProduct.id }) {
+                PriceInfoView(
+                    product: $productModel.products[index],
+                    secondaryColor: secondaryColor)
             }
-            .background(Color.clear) // Isso ajuda a garantir que o VStack não tenha fundo preto
+            List {
+                ForEach(productModel.products) { product in
+                    ProductRowView(product: product, secondaryColor: secondaryColor)
+                }
+                .onDelete { indexSet in
+                    indexSet.forEach { index in
+                        let product = productModel.products[index]
+                        productModel.delete(product)
+                    }
+                }
+            }
         }
     }
+}
+
+@available(iOS 26.0, *)
+#Preview {
+    ProductsView()
+        .environmentObject(ProductModel())
+        .environmentObject(OrderViewModel())
 }

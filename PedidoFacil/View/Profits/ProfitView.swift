@@ -19,12 +19,9 @@ struct ProfitView: View {
     
     var body: some View {
         NavigationView {
-            ZStack {
-                BackgroundView()
-
                 VStack(spacing: 0) {
                     HeaderView(
-                        title: "Resumo de Lucros",
+                        title: "Lucros",
                         primaryColor: primaryColor,
                         onClearAll: viewModel.clearAllOrders,
                         isClearDisabled: viewModel.orders.isEmpty
@@ -36,7 +33,6 @@ struct ProfitView: View {
                             .padding(.horizontal, 20)
                     }
                 }
-            }
             .navigationBarHidden(true)
         }
     }
