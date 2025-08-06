@@ -13,7 +13,7 @@ class OrderViewModel: ObservableObject {
     @Published var quantityKg: String = ""
     @Published var totalPrice: Double = 0.0
     @Published var totalProfit: Double = 0.0
-    @Published var selectedProduct: Product = sampleProducts[0]
+    @Published var selectedProduct: Product = Product(name: "Selecione um produto", purchasePrice: 0, sellingPrice: 0, packageType: "", packageSize: "", unitsPerPackage: 1, category: "")
     @Published var orders: [OrderItem] = []
     @Published var showingCalculation: Bool = false
     @Published var purchaseList: [Product] = []
@@ -22,6 +22,10 @@ class OrderViewModel: ObservableObject {
     @Published var clientOrders: [ClientOrder] = []
     @Published var showClientNameField: Bool = false
     @Published var receiptText: String = ""
+    
+    init() {
+        loadClientOrdersFromDisk()
+    }
    
     /// CALC SOLICITAR ITENS
     func calculate() {
@@ -237,10 +241,7 @@ private extension OrderViewModel {
         } catch {
             print("❌ Erro ao salvar pedidos: \(error)")
         }
-    }
-
-    func loadClientOrdersFromDisk() {
-        do {
+       func loadClientOrdersFromDisk() {     do {
             let data = try Data(contentsOf: clientOrdersFileURL)
             let savedOrders = try JSONDecoder().decode([ClientOrder].self, from: data)
             clientOrders = savedOrders

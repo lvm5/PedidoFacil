@@ -12,6 +12,7 @@ import SwiftUI
 struct ProductSelectionView: View {
     
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var productModel: ProductModel
     
     @Binding var selectedProduct: Product
     @Binding var showingCalculation: Bool
@@ -30,7 +31,7 @@ struct ProductSelectionView: View {
                 }
                 
                 Menu {
-                    ForEach(sampleProducts.sorted(by: { $0.category < $1.category })) { product in
+                    ForEach(productModel.products.sorted(by: { $0.category < $1.category })) { product in
                         Button(action: {
                             selectedProduct = product
                             withAnimation(.spring()) {
