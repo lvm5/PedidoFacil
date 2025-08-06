@@ -1,5 +1,6 @@
 import SwiftUI
 
+@available(iOS 26.0, *)
 struct ProductsView: View {
     @EnvironmentObject var productModel: ProductModel
     @State private var showingAddProduct = false
@@ -23,7 +24,7 @@ struct ProductsView: View {
             VStack {
                 List {
                     ForEach(filteredProducts.sorted(by: { $0.category < $1.category })) { product in
-                        ProductRowView(product: product)
+                        ProductRowView(product: product, secondaryColor: Color.blue)
                             .onTapGesture {
                                 selectedProduct = product
                             }
@@ -52,7 +53,10 @@ struct ProductsView: View {
 }
 
 #Preview {
-    ProductsView()
-        .environmentObject(ProductModel())
+    if #available(iOS 26.0, *) {
+        ProductsView()
+            .environmentObject(ProductModel())
+    } else {
+        // Fallback on earlier versions
+    }
 }
-

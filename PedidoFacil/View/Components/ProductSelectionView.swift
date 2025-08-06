@@ -83,9 +83,9 @@ struct ProductSelectionView: View {
         }
     }
 
-#Preview {
-    ProductSelectionView(
-        selectedProduct: .constant(sampleProducts.first ?? Product(name: "Produto Exemplo", purchasePrice: 0, sellingPrice: 0, packageType: "", packageSize: "", unitsPerPackage: 0, category: "")),
-        showingCalculation: .constant(false)
-    )
-}
+//#Preview {
+//    ProductSelectionView(
+//        selectedProduct: .constant(sampleProducts.first ?? Product(name: "Produto Exemplo", purchasePrice: 0, sellingPrice: 0, packageType: "", packageSize: "", unitsPerPackage: 0, category: "")),
+//        showingCalculation: .constant(false)
+//    )
+//}

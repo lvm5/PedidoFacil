@@ -241,7 +241,10 @@ private extension OrderViewModel {
         } catch {
             print("❌ Erro ao salvar pedidos: \(error)")
         }
-       func loadClientOrdersFromDisk() {     do {
+    }
+    
+    func loadClientOrdersFromDisk() {
+        do {
             let data = try Data(contentsOf: clientOrdersFileURL)
             let savedOrders = try JSONDecoder().decode([ClientOrder].self, from: data)
             clientOrders = savedOrders
