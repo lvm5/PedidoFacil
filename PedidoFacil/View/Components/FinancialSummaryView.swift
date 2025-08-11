@@ -31,8 +31,7 @@ struct FinancialSummaryView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                     
-#warning("Reparar e habilitar cálculo")
-                    Text("Total: R$ \(viewModel.totalPrice, specifier: "%.2f")")
+                    Text("Total: R$ \(viewModel.totalPriceFromAllClientOrders, specifier: "%.2f")")
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
