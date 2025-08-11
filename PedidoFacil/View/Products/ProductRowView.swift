@@ -51,7 +51,7 @@ struct ProductRowView: View {
                     productModel.update(product)
                     viewModel.selectedProduct = product
                 }) {
-                    Text("Salvar")
+                    Text("Editar")
                         .frame(maxWidth: 80, maxHeight: 40)
                         .font(.headline)
                         .foregroundColor(.white)
