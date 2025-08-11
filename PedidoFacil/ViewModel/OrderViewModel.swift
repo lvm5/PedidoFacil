@@ -213,17 +213,16 @@ class OrderViewModel: ObservableObject {
             }
         }
     }
+    
+    /// Valor total (preço de venda) de todos os pedidos de todos os clientes
+    var totalPriceFromAllClientOrders: Double {
+        clientOrders.reduce(0) { total, clientOrder in
+            total + clientOrder.items.reduce(0) { subtotal, item in
+                subtotal + (item.product.sellingPrice * item.quantity)
+            }
+        }
+    }
 }
-
-#warning("Reparar e habilitar cálculo")
-/// Valor total (preço de venda) de todos os pedidos de todos os clientes
-//var totalPriceFromAllClientOrders: Double {
-//    clientOrders.reduce(0) { total, clientOrder in
-//        total + clientOrder.items.reduce(0) { subtotal, item in
-//            subtotal + (item.product.sellingPrice * item.quantity)
-//        }
-//    }
-//}
 
 // MARK: - Persistência com FileManager + JSON
 
@@ -254,3 +253,4 @@ private extension OrderViewModel {
         }
     }
 }
+
