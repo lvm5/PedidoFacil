@@ -1,5 +1,5 @@
 //
-//  ProductPickerView.swift
+//  ProfitView.swift
 //  PedidoFacil
 //
 //  Created by Leandro Morais on 2025-07-17.
@@ -11,7 +11,7 @@ import SwiftUI
 struct ProfitView: View {
     
     @Environment(\.colorScheme) var colorScheme
-    @StateObject private var viewModel = OrderViewModel()
+    @EnvironmentObject var viewModel: OrderViewModel
     
     // Cores personalizadas
     private let primaryColor = Color(red: 0.3, green: 0.4, blue: 0.9)
@@ -40,8 +40,10 @@ struct ProfitView: View {
 
 #Preview {
     if #available(iOS 26.0, *) {
-        HomeView()
+        ProfitView()
+            .environmentObject(OrderViewModel())
     } else {
         Text("Preview not available")
     }
 }
+
