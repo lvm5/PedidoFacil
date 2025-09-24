@@ -13,41 +13,37 @@ struct ProductRowView: View {
     @EnvironmentObject var productModel: ProductModel
     @EnvironmentObject var viewModel: OrderViewModel
     @State var product: Product
+    @State private var purchasePrice: Double
+    @State private var sellingPrice: Double
     let secondaryColor: Color
+    
+    init(product: Product, secondaryColor: Color) {
+        _product = State(initialValue: product)
+        _purchasePrice = State(initialValue: product.purchasePrice)
+        _sellingPrice = State(initialValue: product.sellingPrice)
+        self.secondaryColor = secondaryColor
+    }
     
     var body: some View {
         
         VStack(alignment: .leading) {
             HStack {
-                Text(product.name)
-                    .font(.headline)
-                Text(product.brand ?? "")
-                    .font(.headline)
-            }
-            HStack(alignment: .top, spacing: 12) {
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text("Compra:")
-                        Spacer()
-                        TextField("Preço de compra", value: $product.purchasePrice, format: .number)
-                            .frame(width: 100)
-                            .keyboardType(.decimalPad)
-                            .textFieldStyle(.roundedBorder)
-                    }
-                   
-                    
-                    HStack {
-                        Text("Venda:")
-                        Spacer()
-                        TextField("Preço de venda", value: $product.sellingPrice, format: .number)
-                            .frame(width: 100)
-                            .keyboardType(.decimalPad)
-                            .textFieldStyle(.roundedBorder)
-                    }
+                VStack(alignment: .leading) {
+                    Text(product.name)
+                        .font(.title2)
+                        .bold()
+                        .foregroundStyle(.primary)
+
+                    Text(product.brand ?? "")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
                 }
+                
                 Spacer()
                 
                 Button(action: {
+                    product.purchasePrice = purchasePrice
+                    product.sellingPrice = sellingPrice
                     productModel.update(product)
                     viewModel.selectedProduct = product
                 }) {
@@ -61,7 +57,6 @@ struct ProductRowView: View {
                 }
             }
         }
-        //.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16))
     }
 }
 

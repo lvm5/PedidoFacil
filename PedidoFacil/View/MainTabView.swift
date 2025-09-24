@@ -24,10 +24,10 @@ struct MainTabView: View {
                     Label("Pedidos", systemImage: "doc.plaintext")
                 }
             
-            PurchaseSuggestionsView(primaryColor: .blue)
-                .tabItem {
-                    Label("Compra", systemImage: "shippingbox")
-                }
+//            PurchaseSuggestionsView(primaryColor: .blue)
+//                .tabItem {
+//                    Label("Compra", systemImage: "shippingbox")
+//                }
 
             ProductsView()
                 .tabItem {
