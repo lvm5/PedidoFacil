@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+@available(iOS 26.0, *)
 struct OrdersView: View {
     @EnvironmentObject var viewModel: OrderViewModel
     
@@ -37,10 +38,9 @@ struct OrdersView: View {
                             viewModel.removeClientOrder(at: indexSet)
                         }
                     }
+                    .listSectionMargins(.horizontal, 5)
                 }
             }
-            .scrollContentBackground(.hidden)
-            .background(Color.clear)
         }
     }
 }
@@ -49,7 +49,7 @@ struct OrdersView: View {
 
 
 
-
+@available(iOS 26.0, *)
 #Preview {
     let sampleProducts: [Product] = [
         Product(name: "Produto A", purchasePrice: 10.0, sellingPrice: 15.0, packageType: "Unidade", packageSize: "1 un", unitsPerPackage: 1, category: "Categoria A", brand: nil),

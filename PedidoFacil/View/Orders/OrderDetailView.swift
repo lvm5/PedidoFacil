@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+@available(iOS 26.0, *)
 struct OrderDetailView: View {
     var order: ClientOrder
     
@@ -45,10 +46,13 @@ struct OrderDetailView: View {
                 }
             }
         }
+        .listSectionMargins(.horizontal, 5)
         .navigationTitle("Detalhes")
     }
 }
 
+
+@available(iOS 26.0, *)
 #Preview {
     let sampleProduct = Product(
         name: "Coxinha",

@@ -30,6 +30,7 @@ struct ProductsView: View {
                             }
                     }
                 }
+                .listSectionMargins(.horizontal, 5)
                 .searchable(text: $searchText, prompt: "Buscar produtos...")
             }
             .navigationTitle("Produtos")
