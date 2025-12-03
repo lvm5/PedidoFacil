@@ -11,8 +11,8 @@ import SwiftUI
 struct HeaderView: View {
     let title: String
     let primaryColor: Color
-    let onClearAll: () -> Void
-    let isClearDisabled: Bool
+    let onClearAll: () -> Void?
+    let isClearDisabled: Bool?
     
     var body: some View {
         VStack(spacing: 8) {
@@ -23,7 +23,7 @@ struct HeaderView: View {
                     .padding(.horizontal)
                 
                 Text(title)
-                    .font(.largeTitle)
+                    .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.primary)
                 

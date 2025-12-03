@@ -76,7 +76,7 @@ struct ActionButtonsView: View {
                             .fontWeight(.semibold)
                     }
                     .foregroundColor(.white)
-                    .padding()
+//                    .padding()
                     .frame(maxWidth: .infinity)
                     .background(Color.green)
                     .clipShape(RoundedRectangle(cornerRadius: 16))

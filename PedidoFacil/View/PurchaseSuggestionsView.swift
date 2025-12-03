@@ -5,8 +5,8 @@
 //  Created by Leandro Morais on 2025-07-17.
 //
 
-
 import SwiftUI
+import Foundation // Import Foundation to support currency formatting extension
 
 struct PurchaseSuggestionsView: View {
     @EnvironmentObject var viewModel: OrderViewModel
@@ -20,6 +20,11 @@ struct PurchaseSuggestionsView: View {
                 onClearAll: viewModel.clearAllOrders,
                 isClearDisabled: viewModel.orders.isEmpty
             )
+            // Showing total price formatted as local currency below the header
+            Text(viewModel.totalPriceFromAllClientOrders.asCurrency()) // Local currency formatting
+                .font(.title3)
+                .fontWeight(.semibold)
+                .padding(.bottom, 8)
             
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
@@ -53,7 +58,8 @@ struct PurchaseSuggestionsView: View {
                                 .filter { $0.product == product }
                                 .map { $0.quantity }
                                 .reduce(0, +)
-                            let sobraKg = totalKg.truncatingRemainder(dividingBy: Double(product.unitsPerPackage))
+                            let unitsPerPackage = Double(product.unitsPerPackage ?? 1)
+                            let sobraKg = totalKg.truncatingRemainder(dividingBy: unitsPerPackage)
                             
                             Text("🟡 \(product.name) \(product.brand ?? "") – espera: \(sobraKg, specifier: "%.2f")kg")
                                 .font(.subheadline)

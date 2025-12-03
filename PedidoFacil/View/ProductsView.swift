@@ -21,9 +21,14 @@ struct ProductsView: View {
     
     var body: some View {
         NavigationView {
+//                        HeaderView(title: "Produtos",
+//                                   primaryColor: .primary,
+//                                   onClearAll: {},
+//                                   isClearDisabled: !productModel.products.isEmpty
+//                                   )
             VStack {
                 List {
-                    ForEach(filteredProducts.sorted(by: { $0.category < $1.category })) { product in
+                    ForEach(filteredProducts.sorted(by: { $0.name < $1.name })) { product in
                         ProductRowView(product: product, secondaryColor: Color.blue)
                             .onTapGesture {
                                 selectedProduct = product

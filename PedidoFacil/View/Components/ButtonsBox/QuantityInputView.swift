@@ -35,7 +35,7 @@ struct QuantityInputView: View {
                         .stroke(primaryColor.opacity(0.1), lineWidth: 1)
                 )
             
-            Text("Digite a quantidade em kg")
+            Text("Digite a quantidade")
                 .font(.caption)
                 .foregroundColor(.secondary)
         }

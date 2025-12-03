@@ -12,11 +12,11 @@ struct Product: Identifiable, Hashable, Codable {
     var name: String
     var purchasePrice: Double
     var sellingPrice: Double
-    var packageType: String
-    var packageSize: String
-    var unitsPerPackage: Int
+    var packageType: String?
+    var packageSize: String?
+    var unitsPerPackage: Int?
     var category: String
-    var brand: String? // Opcional para quando quiser especificar marca
+    var brand: String?
     var calculatedUnits: Int? = nil
     
     init(name: String, purchasePrice: Double, sellingPrice: Double, packageType: String, packageSize: String, unitsPerPackage: Int, category: String, brand: String? = nil) {
@@ -32,6 +32,3 @@ struct Product: Identifiable, Hashable, Codable {
         self.calculatedUnits = nil
     }
 }
-
-// Lista de produtos de exemplo removida - agora os produtos são gerenciados pelo ProductModel
-

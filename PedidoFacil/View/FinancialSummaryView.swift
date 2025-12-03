@@ -16,45 +16,46 @@ struct FinancialSummaryView: View {
     let orders: [OrderItem]
     
     var body: some View {
-        VStack(spacing: 16) {
-            Text("Resumo Financeiro")
-                .font(.headline)
-                .fontWeight(.semibold)
-            
-            HStack(spacing: 20) {
-                VStack(spacing: 8) {
-                    Image(systemName: "dollarsign.circle.fill")
-                        .font(.title)
-                        .foregroundColor(.blue)
-                    
-                    Text("Total Vendas")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
-                    Text("Total: R$ \(viewModel.totalPriceFromAllClientOrders, specifier: "%.2f")")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-                }
+        ScrollView {
+            VStack(spacing: 16) {
+//                Text("Resumo Financeiro")
+//                    .font(.headline)
+//                    .fontWeight(.semibold)
                 
-                VStack(spacing: 8) {
-                    Image(systemName: "chart.line.uptrend.xyaxis.circle.fill")
-                        .font(.title)
-                        .foregroundColor(.green)
+                VStack(spacing: 20) {
+                    VStack(spacing: 8) {
+                        Image(systemName: "dollarsign.circle.fill")
+                            .font(.title)
+                            .foregroundColor(.blue)
+                        
+                        Text("Total Vendas")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        Text("Total: R$ \(viewModel.totalPriceFromAllClientOrders, specifier: "%.2f")")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
+                    }
                     
-                    Text("Total Lucro")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
-                    Text("Lucro: R$ \(viewModel.totalProfitFromAllClientOrders, specifier: "%.2f")")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.green)
+                    VStack(spacing: 8) {
+                        Image(systemName: "chart.line.uptrend.xyaxis.circle.fill")
+                            .font(.title)
+                            .foregroundColor(.green)
+                        
+                        Text("Total Lucro")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        Text("Lucro: R$ \(viewModel.totalProfitFromAllClientOrders, specifier: "%.2f")")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.green)
+                    }
                 }
             }
         }
-        .padding()
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+       // .frame(minWidth: .infinity)
     }
 }
 

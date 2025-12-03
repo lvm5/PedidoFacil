@@ -18,22 +18,29 @@ struct CurrentOrderListView: View {
         GroupBox {
             VStack {
                 ForEach(orders) { order in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(order.product.name)
-                            .fontWeight(.semibold)
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(order.product.name)
+                                .fontWeight(.semibold)
 
-                        if let brand = order.product.brand {
-                            Text("Marca: \(brand)")
+                            if let brand = order.product.brand {
+                                Text("Marca: \(brand)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Text("Quantidade: \(String(format: "%.2f", order.quantity)) \(order.product.packageType)")
                                 .font(.caption)
+
+                            Text("Total: R$ \(String(format: "%.2f", order.totalPrice))")
+                                .font(.caption2)
                                 .foregroundColor(.secondary)
                         }
-
-                        Text("Quantidade: \(String(format: "%.2f", order.quantity)) \(order.product.packageType)")
-                            .font(.caption)
-
-                        Text("Total: R$ \(String(format: "%.2f", order.totalPrice))")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
+                        Spacer()
+                        Button(role: .destructive, action: { removeOrder(order) }) {
+                            Image(systemName: "trash")
+                                .foregroundColor(.red)
+                        }
                     }
                     .padding()
                     //.background(Material.ultraThinMaterial)

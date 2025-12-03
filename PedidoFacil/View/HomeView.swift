@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 @available(iOS 26.0, *)
 struct HomeView: View {
@@ -41,8 +42,8 @@ struct HomeView: View {
                         // Botões de ação
                         ActionButtonsView(
                             quantityKg: viewModel.quantityKg,
-                            totalPrice: viewModel.totalPrice,
-                            totalProfit: viewModel.totalProfit,
+                            totalPrice: viewModel.totalPrice,   // Passa Double, ActionButtonsView deve formatar para moeda local
+                            totalProfit: viewModel.totalProfit, // Passa Double, ActionButtonsView deve formatar para moeda local
                             showingCalculation: viewModel.showingCalculation,
                             onCalculate: {
                                 viewModel.calculate()
@@ -79,6 +80,7 @@ struct HomeView: View {
                     .padding(.horizontal, 20)
                     .padding(.bottom, 100)
                 }
+                .scrollDismissesKeyboard(.interactively)
             }
             
             .navigationBarHidden(true)

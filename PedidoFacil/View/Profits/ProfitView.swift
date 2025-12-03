@@ -21,7 +21,7 @@ struct ProfitView: View {
         NavigationView {
                 VStack(spacing: 0) {
                     HeaderView(
-                        title: "Lucros",
+                        title: "Resumo Financeiro",
                         primaryColor: primaryColor,
                         onClearAll: viewModel.clearAllOrders,
                         isClearDisabled: viewModel.orders.isEmpty
@@ -30,7 +30,7 @@ struct ProfitView: View {
                     ScrollView {
                         FinancialSummaryView(orders: viewModel.orders)
                             .padding(.top, 20)
-                            .padding(.horizontal, 20)
+                            //.padding(.horizontal, 20)
                     }
                 }
             .navigationBarHidden(true)

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct ProductEditView: View {
     @EnvironmentObject var productModel: ProductModel
@@ -19,6 +20,8 @@ struct ProductEditView: View {
     @State private var unitsPerPackage: String = "1"
     @State private var category: String = ""
     @State private var brand: String = ""
+    @State private var selectedProduct: Product?
+    @State private var didAppear: Bool = false
     
     let product: Product?
     let isEditing: Bool
@@ -26,47 +29,42 @@ struct ProductEditView: View {
     init(product: Product? = nil) {
         self.product = product
         self.isEditing = product != nil
-        
-        if let product = product {
-            _name = State(initialValue: product.name)
-            _purchasePrice = State(initialValue: String(product.purchasePrice))
-            _sellingPrice = State(initialValue: String(product.sellingPrice))
-            _packageType = State(initialValue: product.packageType)
-            _packageSize = State(initialValue: product.packageSize)
-            _unitsPerPackage = State(initialValue: String(product.unitsPerPackage))
-            _category = State(initialValue: product.category)
-            _brand = State(initialValue: product.brand ?? "")
-        }
     }
+    
+    var purchasePriceValue: Double { Double(purchasePrice.replacingOccurrences(of: ",", with: ".")) ?? 0 }
+    var sellingPriceValue: Double { Double(sellingPrice.replacingOccurrences(of: ",", with: ".")) ?? 0 }
     
     var body: some View {
         NavigationView {
             Form {
-                Section("Informações Básicas") {
+                Section(header: Text("Informações Básicas")) {
                     TextField("Nome do produto", text: $name)
-                    TextField("Categoria", text: $category)
+                    TextField("Definir categoria", text: $category)
                     TextField("Marca (opcional)", text: $brand)
                 }
-                
-                Section("Preços") {
+                Section(header: Text("Preços")) {
                     HStack {
+                        VStack {
                         Text("Preço de compra")
+                        Text(purchasePriceValue.asCurrency()).font(.caption).foregroundColor(.secondary)
+                    }
                         Spacer()
                         TextField("0,00", text: $purchasePrice)
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                     }
-                    
                     HStack {
-                        Text("Preço de venda")
+                        VStack{
+                            Text("Preço de venda")
+                            Text(sellingPriceValue.asCurrency()).font(.caption).foregroundColor(.secondary)
+                        }
                         Spacer()
                         TextField("0,00", text: $sellingPrice)
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                     }
                 }
-                
-                Section("Embalagem") {
+                Section(header: Text("Embalagem")) {
                     Picker("Tipo de embalagem", selection: $packageType) {
                         Text("Kg").tag("Kg")
                         Text("Unidade").tag("Unidade")
@@ -85,7 +83,6 @@ struct ProductEditView: View {
                             .multilineTextAlignment(.trailing)
                     }
                 }
-                
                 if isEditing {
                     Section {
                         Button("Excluir Produto", role: .destructive) {
@@ -105,7 +102,6 @@ struct ProductEditView: View {
                         dismiss()
                     }
                 }
-                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Salvar") {
                         saveProduct()
@@ -113,16 +109,29 @@ struct ProductEditView: View {
                     .disabled(!isFormValid)
                 }
             }
+            .onAppear {
+                if !didAppear {
+                    if isEditing, let product = product {
+                        name = product.name
+                        purchasePrice = String(product.purchasePrice)
+                        sellingPrice = String(product.sellingPrice)
+                        packageType = product.packageType ?? ""
+                        packageSize = product.packageSize ?? ""
+                        unitsPerPackage = product.unitsPerPackage.map { String($0) } ?? ""
+                        category = product.category
+                        brand = product.brand ?? ""
+                    }
+                    didAppear = true
+                }
+            }
         }
+        .scrollDismissesKeyboard(.interactively)
     }
     
     private var isFormValid: Bool {
         !name.isEmpty &&
-        !category.isEmpty &&
-        !packageSize.isEmpty &&
         Double(purchasePrice) != nil &&
-        Double(sellingPrice) != nil &&
-        Int(unitsPerPackage) != nil
+        Double(sellingPrice) != nil
     }
     
     private func saveProduct() {
@@ -167,4 +176,3 @@ struct ProductEditView: View {
     ProductEditView()
         .environmentObject(ProductModel())
 }
-

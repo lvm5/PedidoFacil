@@ -71,7 +71,7 @@ class OrderViewModel: ObservableObject {
         purchaseList.removeAll()
         pendingList.removeAll()
         for (product, totalKg) in demandMap {
-            let kgPerUnit = Double(product.unitsPerPackage)
+            let kgPerUnit = Double(product.unitsPerPackage ?? 0)
             let totalPackages = totalKg / kgPerUnit
             let wholePackages = Int(totalPackages)
             if wholePackages >= 1 {
@@ -101,7 +101,7 @@ class OrderViewModel: ObservableObject {
         pendingList.removeAll()
         
         for (product, totalKg) in demandMap {
-            let kgPerUnit = Double(product.unitsPerPackage)
+            let kgPerUnit = Double(product.unitsPerPackage ?? 0)
             let totalPackages = totalKg / kgPerUnit
             let wholePackages = Int(totalPackages) // arredonda pra baixo
             
@@ -160,7 +160,7 @@ class OrderViewModel: ObservableObject {
         // 2. Montar o texto de compra
         var text = "📋 Lista de Compra\n\n"
         for (product, totalQuantity) in productTotals {
-            let unitsPerPackage = Double(product.unitsPerPackage)
+            let unitsPerPackage = Double(product.unitsPerPackage ?? 0)
             let packages = Int(totalQuantity / unitsPerPackage) // arredonda pra baixo
             let remainder = totalQuantity.truncatingRemainder(dividingBy: unitsPerPackage)
             
@@ -178,7 +178,7 @@ class OrderViewModel: ObservableObject {
         for order in clientOrders {
             for item in order.items {
                 let totalQuantity = productTotals[item.product] ?? 0
-                let remainder = totalQuantity.truncatingRemainder(dividingBy: Double(item.product.unitsPerPackage))
+                let remainder = totalQuantity.truncatingRemainder(dividingBy: Double(item.product.unitsPerPackage ?? 0))
                 if remainder > 0 {
                     clientObservations[order.clientName, default: []].append(item.product.name)
                 }

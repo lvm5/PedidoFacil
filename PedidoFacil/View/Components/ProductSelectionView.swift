@@ -31,7 +31,7 @@ struct ProductSelectionView: View {
                 }
                 
                 Menu {
-                    ForEach(productModel.products.sorted(by: { $0.category < $1.category })) { product in
+                    ForEach(productModel.products.sorted(by: { $0.name < $1.name })) { product in
                         Button(action: {
                             selectedProduct = product
                             withAnimation(.spring()) {
