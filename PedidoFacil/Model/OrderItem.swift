@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct OrderItem: Identifiable, Codable {
+struct OrderItem: Identifiable, Codable, Equatable {
     let id: UUID
     var product: Product
     var quantity: Double

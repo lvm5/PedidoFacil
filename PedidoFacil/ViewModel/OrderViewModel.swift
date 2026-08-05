@@ -11,29 +11,46 @@ import SwiftUI
 
 @MainActor
 class OrderViewModel: ObservableObject {
-    @Published var quantityKg: String = ""
+    @Published var quantityKg: String = "" {
+        didSet { scheduleDraftSave() }
+    }
     @Published var totalPrice: Double = 0.0
     @Published var totalProfit: Double = 0.0
-    @Published var selectedProduct: Product = Product(name: "Selecione um produto", purchasePrice: 0, sellingPrice: 0, packageType: "", packageSize: "", unitsPerPackage: 1, category: "")
-    @Published var orders: [OrderItem] = []
+    @Published var selectedProduct: Product = OrderViewModel.placeholderProduct {
+        didSet { scheduleDraftSave() }
+    }
+    @Published var orders: [OrderItem] = [] {
+        didSet { scheduleDraftSave() }
+    }
     @Published var showingCalculation: Bool = false
     @Published var purchaseList: [Product] = []
     @Published var pendingList: [Product] = []
-    @Published var clientName: String = ""
+    @Published var clientName: String = "" {
+        didSet { scheduleDraftSave() }
+    }
     @Published var clientOrders: [ClientOrder] = []
     @Published var showClientNameField: Bool = false
     @Published var receiptText: String = ""
 
     private let clientOrdersStore: JSONFileStore<[ClientOrder]>
+    private let draftStore: JSONFileStore<SalesOrderDraft>
+    private var draftSaveTask: Task<Void, Never>?
+    private var isRestoringDraft = false
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "PedidoFacil",
         category: "OrderPersistence"
     )
     
-    init(clientOrdersStore: JSONFileStore<[ClientOrder]>? = nil) {
+    init(
+        clientOrdersStore: JSONFileStore<[ClientOrder]>? = nil,
+        draftStore: JSONFileStore<SalesOrderDraft>? = nil
+    ) {
         self.clientOrdersStore = clientOrdersStore
             ?? JSONFileStore(fileURL: Self.defaultClientOrdersFileURL)
+        self.draftStore = draftStore
+            ?? JSONFileStore(fileURL: Self.defaultDraftFileURL)
         loadClientOrdersFromDisk()
+        loadDraftFromDisk()
     }
    
     /// CALC SOLICITAR ITENS
@@ -154,6 +171,31 @@ class OrderViewModel: ObservableObject {
         
         print("Pedido salvo com sucesso!")
         saveClientOrdersToDisk()
+        selectedProduct = Self.placeholderProduct
+        saveDraftImmediately()
+    }
+
+    func saveDraftImmediately() {
+        draftSaveTask?.cancel()
+        guard !isRestoringDraft else { return }
+
+        let selectedProductForDraft = selectedProduct.id == Self.placeholderProduct.id
+            ? nil
+            : selectedProduct
+        let draft = SalesOrderDraft(
+            clientName: clientName,
+            items: orders,
+            quantityInput: quantityKg,
+            selectedProduct: selectedProductForDraft,
+            updatedAt: Date()
+        )
+
+        do {
+            try draftStore.save(draft)
+            logger.debug("Order draft saved. Item count: \(draft.items.count, privacy: .public)")
+        } catch {
+            logger.error("Failed to save order draft: \(error.localizedDescription, privacy: .public)")
+        }
     }
     
     /// PURCHASE LIST TOTAL
@@ -237,9 +279,53 @@ class OrderViewModel: ObservableObject {
 // MARK: - Persistência com FileManager + JSON
 
 private extension OrderViewModel {
+    static let placeholderProduct = Product(
+        name: "Selecione um produto",
+        purchasePrice: 0,
+        sellingPrice: 0,
+        packageType: "",
+        packageSize: "",
+        unitsPerPackage: 1,
+        category: ""
+    )
+
     static var defaultClientOrdersFileURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("clientOrders.json")
+    }
+
+    static var defaultDraftFileURL: URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("currentOrderDraft.json")
+    }
+
+    func scheduleDraftSave() {
+        guard !isRestoringDraft else { return }
+        draftSaveTask?.cancel()
+        draftSaveTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(350))
+            guard !Task.isCancelled else { return }
+            self?.saveDraftImmediately()
+        }
+    }
+
+    func loadDraftFromDisk() {
+        isRestoringDraft = true
+        defer { isRestoringDraft = false }
+
+        do {
+            guard let draft = try draftStore.load()?.value, !draft.isEmpty else {
+                return
+            }
+            clientName = draft.clientName
+            orders = draft.items
+            quantityKg = draft.quantityInput
+            selectedProduct = draft.selectedProduct ?? Self.placeholderProduct
+            generatePurchaseSuggestions()
+            logger.info("Order draft restored. Item count: \(draft.items.count, privacy: .public)")
+        } catch {
+            logger.error("Failed to restore order draft: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     func saveClientOrdersToDisk() {
