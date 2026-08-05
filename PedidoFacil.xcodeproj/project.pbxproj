@@ -8,9 +8,15 @@
 
 /* Begin PBXFileReference section */
 		F59B77632D81E1A800CAC589 /* PedidoFacil.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PedidoFacil.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000012F00000000000001 /* PedidoFacilTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PedidoFacilTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		A10000022F00000000000002 /* PedidoFacilTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PedidoFacilTests;
+			sourceTree = "<group>";
+		};
 		F59B77652D81E1A800CAC589 /* PedidoFacil */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = PedidoFacil;
@@ -19,6 +25,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		A10000032F00000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F59B77602D81E1A800CAC589 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -33,6 +46,7 @@
 			isa = PBXGroup;
 			children = (
 				F59B77652D81E1A800CAC589 /* PedidoFacil */,
+				A10000022F00000000000002 /* PedidoFacilTests */,
 				F59B77642D81E1A800CAC589 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,13 +55,47 @@
 			isa = PBXGroup;
 			children = (
 				F59B77632D81E1A800CAC589 /* PedidoFacil.app */,
+				A10000012F00000000000001 /* PedidoFacilTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
+/* Begin PBXContainerItemProxy section */
+		A10000042F00000000000004 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F59B775B2D81E1A800CAC589 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F59B77622D81E1A800CAC589;
+			remoteInfo = PedidoFacil;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXNativeTarget section */
+		A10000052F00000000000005 /* PedidoFacilTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000062F00000000000006 /* Build configuration list for PBXNativeTarget "PedidoFacilTests" */;
+			buildPhases = (
+				A10000072F00000000000007 /* Sources */,
+				A10000032F00000000000003 /* Frameworks */,
+				A10000082F00000000000008 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A10000092F00000000000009 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A10000022F00000000000002 /* PedidoFacilTests */,
+			);
+			name = PedidoFacilTests;
+			packageProductDependencies = (
+			);
+			productName = PedidoFacilTests;
+			productReference = A10000012F00000000000001 /* PedidoFacilTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		F59B77622D81E1A800CAC589 /* PedidoFacil */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F59B77722D81E1AB00CAC589 /* Build configuration list for PBXNativeTarget "PedidoFacil" */;
@@ -80,6 +128,10 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
+					A10000052F00000000000005 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = F59B77622D81E1A800CAC589;
+					};
 					F59B77622D81E1A800CAC589 = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -100,11 +152,19 @@
 			projectRoot = "";
 			targets = (
 				F59B77622D81E1A800CAC589 /* PedidoFacil */,
+				A10000052F00000000000005 /* PedidoFacilTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		A10000082F00000000000008 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F59B77612D81E1A800CAC589 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -115,6 +175,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		A10000072F00000000000007 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F59B775F2D81E1A800CAC589 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -124,7 +191,54 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		A10000092F00000000000009 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F59B77622D81E1A800CAC589 /* PedidoFacil */;
+			targetProxy = A10000042F00000000000004 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		A100000A2F0000000000000A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = LVMorais.PedidoFacilTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PedidoFacil.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PedidoFacil";
+			};
+			name = Debug;
+		};
+		A100000B2F0000000000000B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = LVMorais.PedidoFacilTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PedidoFacil.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PedidoFacil";
+			};
+			name = Release;
+		};
 		F59B77702D81E1AB00CAC589 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -334,6 +448,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A10000062F00000000000006 /* Build configuration list for PBXNativeTarget "PedidoFacilTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A100000A2F0000000000000A /* Debug */,
+				A100000B2F0000000000000B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F59B775E2D81E1A800CAC589 /* Build configuration list for PBXProject "PedidoFacil" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
