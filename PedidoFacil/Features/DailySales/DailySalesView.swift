@@ -73,7 +73,7 @@ struct DailySalesView: View {
                     value: list.updatedAt.formatted(date: .abbreviated, time: .shortened)
                 )
             } else {
-                Text("Nenhuma lista revisada hoje.")
+                Text("Nenhuma lista revisada.")
                     .foregroundStyle(.secondary)
             }
         }
@@ -109,7 +109,10 @@ struct DailySalesView: View {
             }
 
             NavigationLink {
-                FastOrderView(viewModel: fastOrderViewModel)
+                FastOrderView(
+                    viewModel: fastOrderViewModel,
+                    customerProvider: { CustomerStore().activeCustomers }
+                )
             } label: {
                 Label("Criar pedido", systemImage: "cart.badge.plus")
             }
@@ -123,6 +126,12 @@ struct DailySalesView: View {
                 )
             } label: {
                 Label("Enviar ofertas", systemImage: "megaphone")
+            }
+
+            NavigationLink {
+                SalesOrderHistoryView(viewModel: fastOrderViewModel)
+            } label: {
+                Label("Resolver pendências", systemImage: "checklist")
             }
         }
     }

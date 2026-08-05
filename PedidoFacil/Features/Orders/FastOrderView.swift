@@ -2,9 +2,14 @@ import SwiftUI
 
 struct FastOrderView: View {
     @State private var viewModel: FastOrderViewModel
+    private let customerProvider: () -> [Customer]
 
-    init(viewModel: FastOrderViewModel) {
+    init(
+        viewModel: FastOrderViewModel,
+        customerProvider: @escaping () -> [Customer] = { [] }
+    ) {
         _viewModel = State(initialValue: viewModel)
+        self.customerProvider = customerProvider
     }
 
     var body: some View {
@@ -31,6 +36,9 @@ struct FastOrderView: View {
         }
         .navigationTitle("Pedido rápido")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            viewModel.updateCustomers(customerProvider())
+        }
     }
 
     private var statusSection: some View {

@@ -139,9 +139,8 @@ Warnings anteriores permanecem em views legadas: `previewLayout` ignorado e inte
 
 1. Executar smoke visual e acessibilidade em iPad ou dispositivo físico; o build iPad passou, mas o runtime demorou na primeira migração e não concluiu a instalação dentro da janela desta execução.
 2. Validar atualização com fixture copiada da versão publicada na App Store.
-3. O pedido rápido recebe um snapshot dos clientes ao abrir a Central; clientes cadastrados durante a mesma sessão aparecem após recriar a Central.
-4. Arquivados são preservados, mas ainda não há tela de restauração.
-5. Não há sincronização entre dispositivos; os dados continuam locais.
+3. Arquivados são preservados, mas ainda não há tela de restauração.
+4. Não há sincronização entre dispositivos; os dados continuam locais.
 
 ## B13 — Itens adiados
 

@@ -19,7 +19,7 @@ final class FastOrderViewModel {
     var discountReason = ""
 
     let products: [Product]
-    let customers: [Customer]
+    private(set) var customers: [Customer]
 
     private let store: JSONFileStore<[SalesOrder]>
     private let messageGenerator: DiscountRequestMessageGenerator
@@ -127,6 +127,17 @@ final class FastOrderViewModel {
         order.customerName = customer.name
         order.updatedAt = Date()
         persistOrder()
+    }
+
+    func updateCustomers(_ customers: [Customer]) {
+        self.customers = customers.sorted {
+            $0.name.localizedCompare($1.name) == .orderedAscending
+        }
+        if let selectedCustomerID,
+           !self.customers.contains(where: { $0.id == selectedCustomerID }) {
+            self.selectedCustomerID = nil
+            order.customerID = nil
+        }
     }
 
     func addItem() {
