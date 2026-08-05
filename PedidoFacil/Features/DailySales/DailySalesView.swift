@@ -3,17 +3,29 @@ import SwiftUI
 struct DailySalesView: View {
     @State private var settings: OperationalSettings
     @State private var fastOrderViewModel: FastOrderViewModel
+    @State private var priceListViewModel: PriceListImportViewModel
+    @State private var customerStore: CustomerStore
+    @State private var campaignStore: CampaignStore
     @State private var showingSettings = false
 
     private let products: [Product]
 
     init(products: [Product]) {
         self.products = products
+        let customers = CustomerStore()
         _settings = State(initialValue: OperationalSettings())
+        _customerStore = State(initialValue: customers)
+        _campaignStore = State(initialValue: CampaignStore())
+        _priceListViewModel = State(
+            initialValue: PriceListImportViewModel(
+                knownBrands: Array(Set(products.compactMap(\.brand))),
+                knownCategories: Array(Set(products.map(\.category)))
+            )
+        )
         _fastOrderViewModel = State(
             initialValue: FastOrderViewModel(
                 products: products,
-                customers: CustomerStore().activeCustomers
+                customers: customers.activeCustomers
             )
         )
     }
@@ -22,6 +34,7 @@ struct DailySalesView: View {
         NavigationStack {
             List {
                 deadlineSection
+                activeListSection
                 actionsSection
                 pendingSection
                 legacySection
@@ -36,6 +49,21 @@ struct DailySalesView: View {
             }
             .sheet(isPresented: $showingSettings) {
                 OperationalSettingsView(settings: settings)
+            }
+        }
+    }
+
+    private var activeListSection: some View {
+        Section("Lista ativa") {
+            if let list = activePriceList {
+                LabeledContent("Produtos revisados", value: "\(list.items.count)")
+                LabeledContent(
+                    "Atualizada",
+                    value: list.updatedAt.formatted(date: .abbreviated, time: .shortened)
+                )
+            } else {
+                Text("Nenhuma lista revisada hoje.")
+                    .foregroundStyle(.secondary)
             }
         }
     }
@@ -63,10 +91,7 @@ struct DailySalesView: View {
         Section("Ações principais") {
             NavigationLink {
                 PriceListImportView(
-                    viewModel: PriceListImportViewModel(
-                        knownBrands: Array(Set(products.compactMap(\.brand))),
-                        knownCategories: Array(Set(products.map(\.category)))
-                    )
+                    viewModel: priceListViewModel
                 )
             } label: {
                 Label("Importar lista", systemImage: "doc.on.clipboard")
@@ -80,9 +105,9 @@ struct DailySalesView: View {
 
             NavigationLink {
                 CampaignListView(
-                    campaignStore: CampaignStore(),
-                    customerStore: CustomerStore(),
-                    priceListStore: PriceListImportViewModel(),
+                    campaignStore: campaignStore,
+                    customerStore: customerStore,
+                    priceListStore: priceListViewModel,
                     settings: settings
                 )
             } label: {
@@ -93,6 +118,16 @@ struct DailySalesView: View {
 
     private var pendingSection: some View {
         Section("Pendências") {
+            metricRow(
+                "Clientes não contatados",
+                count: interactionCount(.notContacted),
+                systemImage: "person.crop.circle.badge.questionmark"
+            )
+            metricRow(
+                "Clientes interessados",
+                count: interactionCount(.interested),
+                systemImage: "person.crop.circle.badge.checkmark"
+            )
             metricRow(
                 "Rascunhos",
                 count: count(.draft),
@@ -113,6 +148,20 @@ struct DailySalesView: View {
                 count: count(.completed),
                 systemImage: "checkmark.seal"
             )
+        }
+    }
+
+    private var activePriceList: DailyPriceList? {
+        priceListViewModel.savedLists
+            .filter { $0.status == .reviewed || $0.status == .active }
+            .max { $0.updatedAt < $1.updatedAt }
+    }
+
+    private func interactionCount(_ status: CustomerInteractionStatus) -> Int {
+        campaignStore.activeCampaigns.reduce(0) { total, campaign in
+            total + campaign.customerIDs.filter {
+                campaign.interactionStatus(for: $0) == status
+            }.count
         }
     }
 
