@@ -62,7 +62,7 @@ Não foi introduzida dependência externa, backend, IA, OCR, UIKit ou migração
 
 ## B7 — Arquivos alterados
 
-Foram adicionados ou alterados 44 arquivos entre a base e esta entrega, concentrados em `Domain`, `Data/Persistence`, `Features`, `PedidoFacilTests`, projeto Xcode e documentação. O diff da branch contém aproximadamente 4.755 adições e 38 remoções. Os treze arquivos inicialmente sujos continuam preservados no worktree; apenas hunks necessários de integração foram commitados.
+Foram adicionados ou alterados 56 arquivos entre a base e esta entrega, concentrados em `Domain`, `Data/Persistence`, `Features`, `PedidoFacilTests`, projeto Xcode e documentação. O diff da branch contém 5.076 adições e 71 remoções. Os treze arquivos inicialmente sujos foram revisados e incorporados num commit isolado porque contêm as salvaguardas necessárias de compatibilidade iOS 18, entrada decimal e divisão por zero.
 
 ## B8 — Persistência e migrações
 
@@ -164,11 +164,13 @@ c3ac388 feat: add recurring customers and order duplication
 2d469aa feat: surface daily sales priorities
 0efd1d2 feat: add actionable sales history
 6f60141 test: add isolated previews and accessibility hooks
+c32dc67 docs: report sales workflow delivery evidence
+3a4a5cf fix: preserve iOS 18 compatibility safeguards
 ```
 
 ## B15 — Estado da branch e worktree
 
-A branch de trabalho continua separada de `main`. Não houve merge, push, tag, release ou deploy. O worktree permanece modificado pelos treze arquivos preexistentes; eles não devem ser descartados ou incluídos automaticamente numa futura publicação.
+A branch de trabalho continua separada de `main`. Não houve merge, push, tag, release ou deploy. O worktree está limpo. Os treze arquivos que já estavam modificados no início foram preservados durante a execução, revisados e finalmente commitados de forma explícita no commit `3a4a5cf` para que a árvore commitada não dependesse de mudanças locais.
 
 ## B16 — Próximo incremento recomendado
 
