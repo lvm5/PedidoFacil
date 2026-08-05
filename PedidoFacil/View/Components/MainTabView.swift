@@ -11,6 +11,7 @@ import SwiftUI
 @available(iOS 26.0, *)
 struct MainTabView: View {
     @EnvironmentObject var viewModel: OrderViewModel
+    @EnvironmentObject var productModel: ProductModel
     
     var body: some View {
         TabView {
@@ -18,6 +19,16 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Início", systemImage: "house")
                 }
+
+            PriceListImportView(
+                viewModel: PriceListImportViewModel(
+                    knownBrands: Array(Set(productModel.products.compactMap(\.brand))),
+                    knownCategories: Array(Set(productModel.products.map(\.category)))
+                )
+            )
+            .tabItem {
+                Label("Listas", systemImage: "list.clipboard")
+            }
             
             OrdersView()
                 .tabItem {
