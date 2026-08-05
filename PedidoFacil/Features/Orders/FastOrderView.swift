@@ -18,6 +18,10 @@ struct FastOrderView: View {
 
             itemsSection
 
+            if viewModel.order.status == .draft, !viewModel.previousOrders.isEmpty {
+                previousOrdersSection
+            }
+
             if viewModel.order.requiresPriceAdjustment {
                 discountSection
             }
@@ -43,6 +47,20 @@ struct FastOrderView: View {
 
     private var customerSection: some View {
         Section("Cliente") {
+            if !viewModel.customers.isEmpty {
+                Picker(
+                    "Cliente cadastrado",
+                    selection: Binding(
+                        get: { viewModel.selectedCustomerID },
+                        set: { viewModel.selectCustomer($0) }
+                    )
+                ) {
+                    Text("Digitar nome").tag(UUID?.none)
+                    ForEach(viewModel.customers) { customer in
+                        Text(customer.name).tag(Optional(customer.id))
+                    }
+                }
+            }
             TextField(
                 "Nome do cliente",
                 text: Binding(
@@ -51,6 +69,25 @@ struct FastOrderView: View {
                 )
             )
             .textContentType(.name)
+        }
+    }
+
+    private var previousOrdersSection: some View {
+        Section("Pedidos anteriores") {
+            ForEach(viewModel.previousOrders.prefix(5)) { previous in
+                Button {
+                    viewModel.duplicateOrder(id: previous.id)
+                } label: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(previous.customerName)
+                            .foregroundStyle(.primary)
+                        Text("\(previous.items.count) itens · \(currency(previous.negotiatedTotal))")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .accessibilityHint("Cria um novo rascunho com os mesmos itens")
+            }
         }
     }
 

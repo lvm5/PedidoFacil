@@ -11,6 +11,7 @@ final class FastOrderViewModel {
     private(set) var successMessage: String?
 
     var customerName: String
+    var selectedCustomerID: UUID?
     var selectedProductID: UUID?
     var quantityText = ""
     var negotiatedPriceText = ""
@@ -18,6 +19,7 @@ final class FastOrderViewModel {
     var discountReason = ""
 
     let products: [Product]
+    let customers: [Customer]
 
     private let store: JSONFileStore<[SalesOrder]>
     private let messageGenerator: DiscountRequestMessageGenerator
@@ -28,10 +30,12 @@ final class FastOrderViewModel {
 
     init(
         products: [Product],
+        customers: [Customer] = [],
         store: JSONFileStore<[SalesOrder]>? = nil,
         locale: Locale = Locale(identifier: "pt_BR")
     ) {
         self.products = products.sorted { $0.name.localizedCompare($1.name) == .orderedAscending }
+        self.customers = customers.sorted { $0.name.localizedCompare($1.name) == .orderedAscending }
         self.store = store ?? JSONFileStore(fileURL: Self.defaultFileURL)
         messageGenerator = DiscountRequestMessageGenerator(locale: locale)
 
@@ -47,9 +51,11 @@ final class FastOrderViewModel {
         if let draft = persistedOrders.last(where: { $0.status == .draft }) {
             order = draft
             customerName = draft.customerName
+            selectedCustomerID = draft.customerID
         } else {
             order = SalesOrder(customerName: "")
             customerName = ""
+            selectedCustomerID = nil
         }
     }
 
@@ -59,6 +65,22 @@ final class FastOrderViewModel {
 
     var discountMessage: String {
         messageGenerator.generate(for: order)
+    }
+
+    var previousOrders: [SalesOrder] {
+        savedOrders
+            .filter { $0.id != order.id && $0.status != .draft && $0.status != .cancelled }
+            .sorted { $0.updatedAt > $1.updatedAt }
+    }
+
+    var previouslyPurchasedProductIDs: Set<UUID> {
+        guard let selectedCustomerID else { return [] }
+        return Set(
+            savedOrders
+                .filter { $0.customerID == selectedCustomerID }
+                .flatMap(\.items)
+                .compactMap(\.productID)
+        )
     }
 
     var canAddItem: Bool {
@@ -86,8 +108,23 @@ final class FastOrderViewModel {
     }
 
     func updateCustomerName(_ name: String) {
+        selectedCustomerID = nil
         customerName = name
+        order.customerID = nil
         order.customerName = name
+        order.updatedAt = Date()
+        persistOrder()
+    }
+
+    func selectCustomer(_ id: UUID?) {
+        selectedCustomerID = id
+        guard let customer = customers.first(where: { $0.id == id }) else {
+            updateCustomerName("")
+            return
+        }
+        customerName = customer.name
+        order.customerID = customer.id
+        order.customerName = customer.name
         order.updatedAt = Date()
         persistOrder()
     }
@@ -186,6 +223,7 @@ final class FastOrderViewModel {
     func startNewOrder() {
         order = SalesOrder(customerName: "")
         customerName = ""
+        selectedCustomerID = nil
         selectedProductID = nil
         quantityText = ""
         negotiatedPriceText = ""
@@ -193,6 +231,42 @@ final class FastOrderViewModel {
         discountReason = ""
         errorMessage = nil
         successMessage = nil
+        persistOrder()
+    }
+
+    func duplicateOrder(id: UUID, now: Date = Date()) {
+        guard let source = savedOrders.first(where: { $0.id == id }) else {
+            errorMessage = "Pedido anterior não encontrado."
+            return
+        }
+        let copiedItems = source.items.map {
+            SalesOrderItem(
+                productID: $0.productID,
+                productName: $0.productName,
+                brand: $0.brand,
+                quantity: $0.quantity,
+                unit: $0.unit,
+                listPrice: $0.listPrice,
+                negotiatedPrice: $0.negotiatedPrice,
+                note: $0.note
+            )
+        }
+        order = SalesOrder(
+            customerID: source.customerID,
+            customerName: source.customerName,
+            createdAt: now,
+            updatedAt: now,
+            items: copiedItems,
+            note: source.note
+        )
+        customerName = source.customerName
+        selectedCustomerID = source.customerID
+        selectedProductID = nil
+        quantityText = ""
+        negotiatedPriceText = ""
+        discountReason = ""
+        errorMessage = nil
+        successMessage = "Pedido anterior duplicado como novo rascunho."
         persistOrder()
     }
 

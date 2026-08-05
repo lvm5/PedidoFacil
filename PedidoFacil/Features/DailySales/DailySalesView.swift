@@ -10,7 +10,12 @@ struct DailySalesView: View {
     init(products: [Product]) {
         self.products = products
         _settings = State(initialValue: OperationalSettings())
-        _fastOrderViewModel = State(initialValue: FastOrderViewModel(products: products))
+        _fastOrderViewModel = State(
+            initialValue: FastOrderViewModel(
+                products: products,
+                customers: CustomerStore().activeCustomers
+            )
+        )
     }
 
     var body: some View {
