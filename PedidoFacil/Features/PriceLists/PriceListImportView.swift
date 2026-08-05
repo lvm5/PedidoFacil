@@ -29,6 +29,7 @@ struct PriceListImportView: View {
                 TextEditor(text: $viewModel.sourceText)
                     .frame(minHeight: 220)
                     .accessibilityLabel("Texto da lista de preços")
+                    .accessibilityIdentifier("price-list-source")
             } header: {
                 Text("Cole a lista recebida")
             } footer: {
@@ -105,6 +106,7 @@ struct PriceListImportView: View {
                 .padding(.vertical, 10)
         }
         .buttonStyle(.borderedProminent)
+        .accessibilityIdentifier(viewModel.draft == nil ? "review-price-list" : "save-price-list")
         .disabled(viewModel.draft == nil ? !viewModel.canReview : !viewModel.canSave)
         .padding()
         .background(.bar)

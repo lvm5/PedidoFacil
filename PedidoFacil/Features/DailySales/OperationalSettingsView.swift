@@ -75,3 +75,15 @@ struct OperationalSettingsView: View {
         if settings.persistenceErrorMessage == nil { dismiss() }
     }
 }
+
+#Preview("Ajustes operacionais") {
+    OperationalSettingsView(
+        settings: OperationalSettings(
+            store: JSONFileStore(
+                fileURL: FileManager.default.temporaryDirectory
+                    .appendingPathComponent(UUID().uuidString)
+                    .appendingPathComponent("profile.json")
+            )
+        )
+    )
+}

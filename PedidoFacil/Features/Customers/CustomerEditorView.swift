@@ -88,3 +88,16 @@ struct CustomerEditorView: View {
         }
     }
 }
+
+#Preview("Novo cliente") {
+    CustomerEditorView(
+        store: CustomerStore(
+            store: JSONFileStore(
+                fileURL: FileManager.default.temporaryDirectory
+                    .appendingPathComponent(UUID().uuidString)
+                    .appendingPathComponent("customers.json")
+            )
+        ),
+        suggestedSegments: OperationalProfile().customerSegments
+    )
+}

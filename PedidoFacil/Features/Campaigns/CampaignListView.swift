@@ -71,6 +71,27 @@ struct CampaignListView: View {
     }
 }
 
+#Preview("Ofertas vazias") {
+    let directory = FileManager.default.temporaryDirectory
+        .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    return NavigationStack {
+        CampaignListView(
+            campaignStore: CampaignStore(
+                store: JSONFileStore(fileURL: directory.appendingPathComponent("campaigns.json"))
+            ),
+            customerStore: CustomerStore(
+                store: JSONFileStore(fileURL: directory.appendingPathComponent("customers.json"))
+            ),
+            priceListStore: PriceListImportViewModel(
+                store: JSONFileStore(fileURL: directory.appendingPathComponent("lists.json"))
+            ),
+            settings: OperationalSettings(
+                store: JSONFileStore(fileURL: directory.appendingPathComponent("profile.json"))
+            )
+        )
+    }
+}
+
 private struct CampaignDetailView: View {
     let campaignID: UUID
     let store: CampaignStore

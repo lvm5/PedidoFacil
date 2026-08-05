@@ -119,6 +119,7 @@ struct FastOrderView: View {
                 viewModel.addItem()
             }
             .disabled(!viewModel.canAddItem)
+            .accessibilityIdentifier("add-order-item")
         }
     }
 
@@ -213,6 +214,7 @@ struct FastOrderView: View {
             case .draft:
                 Button("Revisar e confirmar") { viewModel.confirmOrder() }
                     .disabled(!viewModel.canConfirm)
+                    .accessibilityIdentifier("confirm-fast-order")
             case .readyToSubmit:
                 Button("Marcar como lançado") { viewModel.markSubmitted() }
                     .buttonStyle(.borderedProminent)

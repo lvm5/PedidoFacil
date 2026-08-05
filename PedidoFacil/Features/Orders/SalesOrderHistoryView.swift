@@ -103,3 +103,18 @@ struct SalesOrderHistoryView: View {
         value.formatted(.currency(code: Locale.current.currency?.identifier ?? "BRL"))
     }
 }
+
+#Preview("Histórico vazio") {
+    NavigationStack {
+        SalesOrderHistoryView(
+            viewModel: FastOrderViewModel(
+                products: [],
+                store: JSONFileStore(
+                    fileURL: FileManager.default.temporaryDirectory
+                        .appendingPathComponent(UUID().uuidString)
+                        .appendingPathComponent("orders.json")
+                )
+            )
+        )
+    }
+}
