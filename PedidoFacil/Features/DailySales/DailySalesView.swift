@@ -72,6 +72,17 @@ struct DailySalesView: View {
             } label: {
                 Label("Criar pedido", systemImage: "cart.badge.plus")
             }
+
+            NavigationLink {
+                CampaignListView(
+                    campaignStore: CampaignStore(),
+                    customerStore: CustomerStore(),
+                    priceListStore: PriceListImportViewModel(),
+                    settings: settings
+                )
+            } label: {
+                Label("Enviar ofertas", systemImage: "megaphone")
+            }
         }
     }
 
