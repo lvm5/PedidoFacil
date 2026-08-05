@@ -15,7 +15,7 @@ struct MainTabView: View {
     
     var body: some View {
         TabView {
-            HomeView()
+            DailySalesView(products: productModel.products)
                 .tabItem {
                     Label("Início", systemImage: "house")
                 }

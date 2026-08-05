@@ -179,6 +179,10 @@ final class FastOrderViewModel {
         transition(to: .completed, success: "Pedido concluído.")
     }
 
+    func cancelOrder() {
+        transition(to: .cancelled, success: "Pedido cancelado.")
+    }
+
     func startNewOrder() {
         order = SalesOrder(customerName: "")
         customerName = ""
