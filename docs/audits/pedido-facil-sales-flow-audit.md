@@ -7,9 +7,11 @@ Branch-base: `main`, um commit à frente de `origin/main` (`501b37e`) no início
 
 ## 1. Estado atual
 
-O repositório contém um único target de aplicação, `PedidoFacil`, sem dependências externas e sem targets de testes. O projeto foi criado com Xcode 16.2, está configurado com Swift 5, deployment target iOS 18.2 e famílias iPhone/iPad. A linha de base foi verificada com Xcode 26.6 (build 17F113), SDK iOS Simulator 26.5.
+Na linha de base, o repositório continha um único target de aplicação, `PedidoFacil`, sem dependências externas e sem targets de testes. O projeto foi criado com Xcode 16.2, está configurado com Swift 5, deployment target iOS 18.2 e famílias iPhone/iPad. A linha de base foi verificada com Xcode 26.6 (build 17F113), SDK iOS Simulator 26.5. O incremento `af53458` adicionou o primeiro target unitário.
 
 O produto atual é um MVP SwiftUI para cadastro de produtos, composição de um pedido por cliente, histórico simples, cálculo de venda/lucro, sugestão de compra e compartilhamento textual. A persistência usa JSON no diretório Documents. Segundo confirmação do proprietário em 2026-08-05, o aplicativo já está publicado na App Store e disponível para download; portanto, o formato persistido e o comportamento de atualização devem ser tratados como produção instalada, não como protótipo descartável.
+
+O produto publicado deve continuar útil para outros vendedores e operações comerciais. As necessidades do proprietário formam o caso principal e os defaults iniciais, mas não autorizam hardcode de empresa, canal, segmentos ou horário. O design deve oferecer configuração mínima e progressive disclosure, preservando a simplicidade para quem usa os padrões.
 
 Não há arquitetura MVVM-C completa. Há models de valor (`Product`, `OrderItem`, `ClientOrder`), dois objetos globais `ObservableObject` (`ProductModel` e `OrderViewModel`), um gerador de mensagem e views SwiftUI. Não há coordinator, repository, use case, protocolo de persistência ou injeção de dependências por feature.
 
@@ -81,7 +83,7 @@ Evidências: `PedidoFacilApp.body`, `MainTabView.body`, `HomeView.body`, `OrderV
 ### P0 — lacunas do novo fluxo
 
 7. Não existem lista diária, texto-fonte, revisão por item, parser, validade, mídia, campanha, cliente persistente, interação, desconto, status, histórico de status ou sessão diária.
-8. A tela inicial é exclusivamente um formulário de pedido; não mostra prazo de 16h30, pendências ou ações operacionais do dia. Evidência: `HomeView.body`.
+8. A tela inicial é exclusivamente um formulário de pedido; não mostra prazo operacional, pendências ou ações do dia. Para o caso principal, o default sugerido é 16h30, mas o horário precisa ser configurável. Evidência: `HomeView.body` e confirmação do proprietário em 2026-08-05.
 9. O pedido não separa preço original, negociado e desconto. `OrderItem.totalPrice` sempre usa `product.sellingPrice`.
 10. Não há salvamento automático, recuperação, duplicação, recentes ou compras anteriores por cliente.
 11. `OrderMessageGenerator.generateMessage` inclui lucro interno na mensagem e usa interpolação de opcionais, podendo produzir `Optional(...)`; esse método não está ligado à UI atual, mas é inseguro para comunicação externa. O recibo não inclui status nem rastreabilidade.
@@ -136,7 +138,7 @@ Evidências: `PedidoFacilApp.body`, `MainTabView.body`, `HomeView.body`, `OrderV
 | Tratar desconto | inexistente | cálculo, justificativa, mensagem e estado explícito |
 | Lançar no app da empresa | inexistente | checklist/status manual; sem integração direta nesta frente |
 | Concluir | salvar pedido simples | máquina de estados e histórico imutável |
-| Prazo 16h30 | inexistente | relógio operacional e priorização de pendências |
+| Prazo operacional | inexistente | horário configurável, default 16h30, e priorização relativa de pendências |
 
 ## 5. Matriz impacto × esforço × risco
 
@@ -148,7 +150,7 @@ Escala: 1 (baixo) a 5 (alto). Prioridade combina valor operacional e redução d
 | Lista diária + parser + revisão | 5 | 4 | 3 | P0 | elimina digitação repetitiva sem IA externa |
 | Pedido rápido com preço original/negociado | 5 | 4 | 4 | P0 | núcleo da operação e pré-requisito do desconto |
 | Fluxo de desconto e mensagem | 5 | 3 | 3 | P0 | resolve bloqueio externo rastreável |
-| Central do Dia e prazo | 5 | 3 | 2 | P0 | orienta ação antes das 16h30 |
+| Central do Dia e prazo configurável | 5 | 3 | 2 | P0 | orienta ação antes do horário de cada operação |
 | Test target + unitários críticos | 5 | 3 | 2 | P0 | reduz regressões em cálculo e migração |
 | Clientes e segmentos | 4 | 3 | 3 | P1 | permite oferta e histórico por público |
 | Campanhas e interações | 4 | 4 | 3 | P1 | fecha rastreabilidade de abordagem/retorno |
@@ -184,12 +186,14 @@ Escala: 1 (baixo) a 5 (alto). Prioridade combina valor operacional e redução d
 ### Incremento 3 — Central do Dia
 
 - Uma lista operacional, não um dashboard de cards.
-- Prazo 16h30, lista ativa e grupos acionáveis: contatar, resolver desconto, lançar e concluir.
+- Prazo configurável (`submissionDeadline`), com 16h30 como default sugerido, lista ativa e grupos acionáveis: contatar, resolver desconto, lançar e concluir.
+- Lembretes relativos ao prazo (por exemplo, −60, −30 e −10 minutos), evitando horários absolutos duplicados no código.
 - Ações principais: importar lista, criar pedido, enviar ofertas e resolver pendências.
 
 ### Incremento 4 — clientes, campanhas e histórico
 
 - Cliente persistente com segmento e etiquetas simples.
+- Segmentos iniciais sugeridos, mas editáveis, para servir outros ramos sem introduzir um CRM complexo.
 - Campanha textual curta/completa e `ShareLink`.
 - Interações e histórico de status.
 - Duplicar pedido e sugerir recorrentes sem decisão automática.
@@ -241,7 +245,7 @@ PedidoFacilUITests/ (quando o fluxo estiver estável)
 - Parser com vírgula decimal, marcas ausentes, preços ausentes, duplicidades e linhas ignoradas.
 - Dinheiro, subtotal, desconto percentual e impacto total.
 - Transições válidas/inválidas de status.
-- Prazo antes, próximo e depois de 16h30 com relógio injetável.
+- Prazo antes, próximo e depois de um `submissionDeadline` configurável com relógio, calendário e fuso local injetáveis.
 - Geradores de oferta, pedido e ajuste sem exposição de lucro ou opcionais.
 
 ### Integração
@@ -275,7 +279,7 @@ As métricas servem decisões diárias e devem ser instrumentadas localmente, se
 
 1. **Tempo de lista pronta**: de `importStartedAt` até confirmação da revisão. Meta inicial provisória: mediana ≤ 3 min; validar com 10 dias reais antes de fixar SLA.
 2. **Tempo de pedido pronto**: da seleção do cliente até `readyToSubmit`. Meta inicial provisória: mediana ≤ 90 s para pedido recorrente e ≤ 3 min para pedido novo.
-3. **Conclusão no prazo**: pedidos confirmados concluídos até 16h30 ÷ pedidos confirmados do dia. Meta operacional inicial: 100%, com contagem absoluta sempre visível para evitar esconder baixo volume.
+3. **Conclusão no prazo**: pedidos confirmados concluídos até o `submissionDeadline` configurado ÷ pedidos confirmados do dia. O default sugerido é 16h30; a meta operacional inicial é 100%, com contagem absoluta sempre visível para evitar esconder baixo volume.
 
 ### Drivers
 
@@ -294,6 +298,17 @@ As métricas servem decisões diárias e devem ser instrumentadas localmente, se
 - taxa de falha de persistência visível e acionável, nunca apenas logada.
 
 Não há baseline de uso real no repositório. As metas de tempo são hipóteses de produto e devem ser recalibradas com eventos locais revisados e confirmação do vendedor.
+
+### Configuração mínima para um produto geral
+
+- nome da operação/vendedor para cabeçalhos opcionais;
+- horário limite diário, com 16h30 sugerido na primeira configuração;
+- moeda e locale derivados do dispositivo, com confirmação quando necessário;
+- segmentos e etiquetas iniciais editáveis;
+- assinatura das mensagens e texto de encerramento;
+- canal de compartilhamento escolhido pelo share sheet, sem integração exclusiva com uma empresa.
+
+Esses campos devem aparecer num onboarding curto ou em Ajustes, não bloquear o primeiro pedido e não aumentar os campos obrigatórios do fluxo diário.
 
 ## 11. Itens explicitamente adiados
 
