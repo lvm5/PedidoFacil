@@ -36,6 +36,11 @@ struct MainTabView: View {
                 }
             
 //            PurchaseSuggestionsView(primaryColor: .blue)
+
+            CustomerListView(store: CustomerStore())
+                .tabItem {
+                    Label("Clientes", systemImage: "person.2")
+                }
 //                .tabItem {
 //                    Label("Compra", systemImage: "shippingbox")
 //                }
