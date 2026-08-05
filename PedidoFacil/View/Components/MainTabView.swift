@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-@available(iOS 26.0, *)
+@available(iOS 18.0, *)
 struct MainTabView: View {
     @EnvironmentObject var viewModel: OrderViewModel
     @EnvironmentObject var productModel: ProductModel
@@ -29,18 +29,18 @@ struct MainTabView: View {
             .tabItem {
                 Label("Listas", systemImage: "list.clipboard")
             }
-            
+
             OrdersView()
                 .tabItem {
                     Label("Pedidos", systemImage: "doc.plaintext")
                 }
-            
-//            PurchaseSuggestionsView(primaryColor: .blue)
 
             CustomerListView(store: CustomerStore())
                 .tabItem {
                     Label("Clientes", systemImage: "person.2")
                 }
+
+//            PurchaseSuggestionsView(primaryColor: .blue)
 //                .tabItem {
 //                    Label("Compra", systemImage: "shippingbox")
 //                }
@@ -57,4 +57,3 @@ struct MainTabView: View {
         }
     }
 }
-

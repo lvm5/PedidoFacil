@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-@available(iOS 26.0, *)
+@available(iOS 18.0, *)
 struct BackgroundView: View {
     @Environment(\.colorScheme) var colorScheme
     

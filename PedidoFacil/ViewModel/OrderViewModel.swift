@@ -81,11 +81,17 @@ class OrderViewModel: ObservableObject {
     /// - ORDER
     func removeOrder(_ order: OrderItem) {
         orders.removeAll { $0.id == order.id }
+        generatePurchaseSuggestions()
     }
     
     /// CLEAN ORDER
     func clearAllOrders() {
         orders.removeAll()
+        purchaseList.removeAll()
+        pendingList.removeAll()
+        quantityKg = ""
+        showingCalculation = false
+        selectedProduct = Self.placeholderProduct
     }
     
     /// PURCHASE LIST (EACH ORDER)
@@ -98,6 +104,7 @@ class OrderViewModel: ObservableObject {
         pendingList.removeAll()
         for (product, totalKg) in demandMap {
             let kgPerUnit = Double(product.unitsPerPackage ?? 0)
+            guard kgPerUnit > 0 else { continue }
             let totalPackages = totalKg / kgPerUnit
             let wholePackages = Int(totalPackages)
             if wholePackages >= 1 {
@@ -128,6 +135,7 @@ class OrderViewModel: ObservableObject {
         
         for (product, totalKg) in demandMap {
             let kgPerUnit = Double(product.unitsPerPackage ?? 0)
+            guard kgPerUnit > 0 else { continue }
             let totalPackages = totalKg / kgPerUnit
             let wholePackages = Int(totalPackages) // arredonda pra baixo
             
@@ -212,6 +220,10 @@ class OrderViewModel: ObservableObject {
         var text = "📋 Lista de Compra\n\n"
         for (product, totalQuantity) in productTotals {
             let unitsPerPackage = Double(product.unitsPerPackage ?? 0)
+            guard unitsPerPackage > 0 else {
+                text += "- \(product.name) \(product.brand ?? ""): sem unidade por embalagem configurada\n"
+                continue
+            }
             let packages = Int(totalQuantity / unitsPerPackage) // arredonda pra baixo
             let remainder = totalQuantity.truncatingRemainder(dividingBy: unitsPerPackage)
             
@@ -229,7 +241,9 @@ class OrderViewModel: ObservableObject {
         for order in clientOrders {
             for item in order.items {
                 let totalQuantity = productTotals[item.product] ?? 0
-                let remainder = totalQuantity.truncatingRemainder(dividingBy: Double(item.product.unitsPerPackage ?? 0))
+                let unitsPerPackage = Double(item.product.unitsPerPackage ?? 0)
+                guard unitsPerPackage > 0 else { continue }
+                let remainder = totalQuantity.truncatingRemainder(dividingBy: unitsPerPackage)
                 if remainder > 0 {
                     clientObservations[order.clientName, default: []].append(item.product.name)
                 }
@@ -248,6 +262,7 @@ class OrderViewModel: ObservableObject {
     
     func removeClientOrder(at offsets: IndexSet) {
         clientOrders.remove(atOffsets: offsets)
+        generatePurchaseSuggestionsFromAllOrders()
         saveClientOrdersToDisk()
     }
     

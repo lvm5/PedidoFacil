@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-@available(iOS 26.0, *)
+@available(iOS 18.0, *)
 struct OrdersView: View {
     @EnvironmentObject var viewModel: OrderViewModel
     
@@ -38,9 +38,19 @@ struct OrdersView: View {
                             viewModel.removeClientOrder(at: indexSet)
                         }
                     }
-                    .listSectionMargins(.horizontal, 5)
+                    .modifier(CompatListSectionMargins())
                 }
             }
+        }
+    }
+}
+
+private struct CompatListSectionMargins: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.listSectionMargins(.horizontal, 5)
+        } else {
+            content
         }
     }
 }
@@ -49,7 +59,7 @@ struct OrdersView: View {
 
 
 
-@available(iOS 26.0, *)
+@available(iOS 18.0, *)
 #Preview {
     let sampleProducts: [Product] = [
         Product(name: "Produto A", purchasePrice: 10.0, sellingPrice: 15.0, packageType: "Unidade", packageSize: "1 un", unitsPerPackage: 1, category: "Categoria A", brand: nil),

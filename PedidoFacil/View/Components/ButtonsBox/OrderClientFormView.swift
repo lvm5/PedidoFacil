@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-@available(iOS 26.0, *)
+@available(iOS 18.0, *)
 struct OrderClientFormView: View {
     @Binding var clientName: String
     let orders: [OrderItem]
@@ -33,7 +33,7 @@ struct OrderClientFormView: View {
 }
 
 
-@available(iOS 26.0, *)
+@available(iOS 18.0, *)
 #Preview {
     OrderClientFormView(
         clientName: .constant("Leandro Morais"),

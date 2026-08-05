@@ -8,7 +8,7 @@ import Foundation
 import Swift
 import SwiftUI
 
-@available(iOS 26.0, *)
+@available(iOS 18.0, *)
 struct ProductRowView: View {
     @EnvironmentObject var productModel: ProductModel
     @EnvironmentObject var viewModel: OrderViewModel
@@ -60,7 +60,7 @@ struct ProductRowView: View {
     }
 }
 
-@available(iOS 26.0, *)
+@available(iOS 18.0, *)
 #Preview {
     ProductRowView(
         product: Product(

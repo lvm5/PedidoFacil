@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-@available(iOS 26.0, *)
+@available(iOS 18.0, *)
 struct ProfitView: View {
     
     @Environment(\.colorScheme) var colorScheme
@@ -39,7 +39,7 @@ struct ProfitView: View {
 }
 
 #Preview {
-    if #available(iOS 26.0, *) {
+    if #available(iOS 18.0, *) {
         ProfitView()
             .environmentObject(OrderViewModel())
     } else {

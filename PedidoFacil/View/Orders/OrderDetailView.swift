@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-@available(iOS 26.0, *)
+@available(iOS 18.0, *)
 struct OrderDetailView: View {
     var order: ClientOrder
     
@@ -46,13 +46,23 @@ struct OrderDetailView: View {
                 }
             }
         }
-        .listSectionMargins(.horizontal, 5)
+        .modifier(CompatListSectionMargins())
         .navigationTitle("Detalhes")
     }
 }
 
+private struct CompatListSectionMargins: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.listSectionMargins(.horizontal, 5)
+        } else {
+            content
+        }
+    }
+}
 
-@available(iOS 26.0, *)
+
+@available(iOS 18.0, *)
 #Preview {
     let sampleProduct = Product(
         name: "Coxinha",

@@ -89,7 +89,7 @@ struct ActionButtonsView: View {
 }
 
 #Preview {
-    if #available(iOS 26.0, *) {
+    if #available(iOS 18.0, *) {
         ActionButtonsView(quantityKg: "", totalPrice: 0.0, totalProfit: 0.0, showingCalculation: true, onCalculate: {}, onAddOrder: {})
     } else {
         Text("Preview not available")

@@ -11,7 +11,7 @@ import Foundation
 struct ProductEditView: View {
     @EnvironmentObject var productModel: ProductModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var name: String = ""
     @State private var purchasePrice: String = ""
     @State private var sellingPrice: String = ""
@@ -31,8 +31,8 @@ struct ProductEditView: View {
         self.isEditing = product != nil
     }
     
-    var purchasePriceValue: Double { Double(purchasePrice.replacingOccurrences(of: ",", with: ".")) ?? 0 }
-    var sellingPriceValue: Double { Double(sellingPrice.replacingOccurrences(of: ",", with: ".")) ?? 0 }
+    var purchasePriceValue: Double { parseDecimal(purchasePrice) ?? 0 }
+    var sellingPriceValue: Double { parseDecimal(sellingPrice) ?? 0 }
     
     var body: some View {
         NavigationView {
@@ -130,13 +130,14 @@ struct ProductEditView: View {
     
     private var isFormValid: Bool {
         !name.isEmpty &&
-        Double(purchasePrice) != nil &&
-        Double(sellingPrice) != nil
+        parseDecimal(purchasePrice) != nil &&
+        parseDecimal(sellingPrice) != nil &&
+        Int(unitsPerPackage) != nil
     }
     
     private func saveProduct() {
-        guard let purchasePriceValue = Double(purchasePrice),
-              let sellingPriceValue = Double(sellingPrice),
+        guard let purchasePriceValue = parseDecimal(purchasePrice),
+              let sellingPriceValue = parseDecimal(sellingPrice),
               let unitsPerPackageValue = Int(unitsPerPackage) else {
             return
         }
@@ -169,6 +170,10 @@ struct ProductEditView: View {
         }
         
         dismiss()
+    }
+
+    private func parseDecimal(_ value: String) -> Double? {
+        Double(value.replacingOccurrences(of: ",", with: "."))
     }
 }
 

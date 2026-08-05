@@ -1,6 +1,6 @@
 import SwiftUI
 
-@available(iOS 26.0, *)
+@available(iOS 18.0, *)
 struct ProductsView: View {
     @EnvironmentObject var productModel: ProductModel
     @State private var showingAddProduct = false
@@ -35,7 +35,7 @@ struct ProductsView: View {
                             }
                     }
                 }
-                .listSectionMargins(.horizontal, 5)
+                .modifier(CompatListSectionMargins())
                 .searchable(text: $searchText, prompt: "Buscar produtos...")
             }
             .navigationTitle("Produtos")
@@ -58,8 +58,18 @@ struct ProductsView: View {
     }
 }
 
+private struct CompatListSectionMargins: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.listSectionMargins(.horizontal, 5)
+        } else {
+            content
+        }
+    }
+}
+
 #Preview {
-    if #available(iOS 26.0, *) {
+    if #available(iOS 18.0, *) {
         ProductsView()
             .environmentObject(ProductModel())
     } else {

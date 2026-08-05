@@ -8,7 +8,7 @@
 import SwiftUI
 import Foundation
 
-@available(iOS 26.0, *)
+@available(iOS 18.0, *)
 struct HomeView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var viewModel: OrderViewModel
@@ -47,7 +47,6 @@ struct HomeView: View {
                             showingCalculation: viewModel.showingCalculation,
                             onCalculate: {
                                 viewModel.calculate()
-                                viewModel.addOrder()
                             },
                             onAddOrder: viewModel.addOrder,
                         )
@@ -89,7 +88,7 @@ struct HomeView: View {
 }
 
 #Preview {
-    if #available(iOS 26.0, *) {
+    if #available(iOS 18.0, *) {
         HomeView()
     } else {
         Text("Preview not available")
