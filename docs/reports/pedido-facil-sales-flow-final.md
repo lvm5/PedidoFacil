@@ -3,7 +3,7 @@
 Data: 2026-08-05
 Branch: `codex/pedido-facil-sales-flow-80-20`
 Base: `7e5d9f2` (`main`)
-Estado: P0 e P1 implementados; validação de runtime final pendente por falha do CoreSimulator
+Estado: P0 e P1 implementados; suíte completa e smoke iPhone aprovados
 
 ## B0 — Estado inicial
 
@@ -88,7 +88,16 @@ xcodebuild test -project PedidoFacil.xcodeproj -scheme PedidoFacil \
 
 Resultado: 26 testes aprovados, zero falhas, zero ignorados, aproximadamente 52 s.
 
-Após P1, existem 33 testes. O comando `build-for-testing` concluiu com `TEST BUILD SUCCEEDED`, incluindo os novos testes de clientes, campanhas, mensagens, interações e duplicação. A execução final não iniciou porque os simuladores passaram a travar na migração `00LaunchServicesMigrator`, antes do runner XCTest. Tentativas em dois simuladores existentes e um temporário tiveram o mesmo comportamento; o temporário foi removido. Nenhuma asserção falhou, mas os sete testes novos não podem ser declarados executados.
+Comando final após P1:
+
+```sh
+xcodebuild test-without-building -project PedidoFacil.xcodeproj -scheme PedidoFacil \
+  -destination 'platform=iOS Simulator,id=04045B46-41ED-43AA-B5B4-ED5E0C3BDFE3' \
+  -derivedDataPath /tmp/PedidoFacilTestsDerivedData-Final \
+  -parallel-testing-enabled NO
+```
+
+Resultado: 33 testes aprovados, zero falhas, zero ignorados. O resultado `.xcresult` registra duração total de aproximadamente 52 s no iPhone 17e, iOS 26.5. A inicialização do Simulator exigiu espera adicional pela migração interna do sistema; após sua conclusão, a suíte executou integralmente.
 
 ## B10 — Builds executados
 
@@ -113,6 +122,7 @@ Build genérico adicional para iOS Simulator: `BUILD SUCCEEDED`.
 ## B11 — Evidências e resultados
 
 - 33 testes compilados no target `PedidoFacilTests`;
+- 33 testes executados e aprovados no iPhone 17e;
 - build iPhone e iPad concluído;
 - `git diff --check` não acusa erros nos arquivos commitados;
 - preços de campanha vêm de snapshots da lista revisada;
@@ -120,17 +130,18 @@ Build genérico adicional para iOS Simulator: `BUILD SUCCEEDED`.
 - transições de desconto exigem resolução antes de `readyToSubmit`;
 - duplicação cria novo pedido e novos IDs de item;
 - logs registram contagens/status, não nomes, telefones ou documentos completos.
+- instalação e lançamento no iPhone Simulator concluídos com o bundle `LVMorais.PedidoFacil`;
+- smoke visual confirmou Central do Dia, prazo, lista ativa, ações, pendências e navegação por abas.
 
 Warnings anteriores permanecem em views legadas: `previewLayout` ignorado e interpolação de opcionais. Eles não foram mascarados nem tratados como regressões desta frente.
 
 ## B12 — Riscos remanescentes
 
-1. Reexecutar os 33 testes após o CoreSimulator concluir a migração interna.
-2. Executar smoke visual e acessibilidade em iPhone/iPad reais ou Simulator saudável.
-3. Validar atualização com fixture copiada da versão publicada na App Store.
-4. O pedido rápido recebe um snapshot dos clientes ao abrir a Central; clientes cadastrados durante a mesma sessão aparecem após recriar a Central.
-5. Arquivados são preservados, mas ainda não há tela de restauração.
-6. Não há sincronização entre dispositivos; os dados continuam locais.
+1. Executar smoke visual e acessibilidade em iPad ou dispositivo físico; o build iPad passou, mas o runtime demorou na primeira migração e não concluiu a instalação dentro da janela desta execução.
+2. Validar atualização com fixture copiada da versão publicada na App Store.
+3. O pedido rápido recebe um snapshot dos clientes ao abrir a Central; clientes cadastrados durante a mesma sessão aparecem após recriar a Central.
+4. Arquivados são preservados, mas ainda não há tela de restauração.
+5. Não há sincronização entre dispositivos; os dados continuam locais.
 
 ## B13 — Itens adiados
 
@@ -174,4 +185,4 @@ A branch de trabalho continua separada de `main`. Não houve merge, push, tag, r
 
 ## B16 — Próximo incremento recomendado
 
-Primeiro, recuperar o runtime do Simulator e executar os 33 testes, smoke dos fluxos lista → oferta → cliente → pedido → desconto → conclusão e uma atualização sobre fixture real da App Store. Somente depois avaliar notificações contextuais e anexos de mídia. Nenhuma publicação deve ocorrer antes desses gates.
+Primeiro, executar o smoke E2E dos fluxos lista → oferta → cliente → pedido → desconto → conclusão no iPad e validar uma atualização sobre fixture real da App Store. Somente depois avaliar notificações contextuais e anexos de mídia. Nenhuma publicação deve ocorrer antes desses gates.
