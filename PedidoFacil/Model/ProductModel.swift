@@ -6,12 +6,20 @@
 //
 
 import Foundation
+import OSLog
 
 @MainActor
 class ProductModel: ObservableObject {
     @Published var products: [Product] = []
 
-    init() {
+    private let store: JSONFileStore<[Product]>
+    private let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "PedidoFacil",
+        category: "ProductPersistence"
+    )
+
+    init(store: JSONFileStore<[Product]>? = nil) {
+        self.store = store ?? JSONFileStore(fileURL: Self.defaultProductsFileURL)
         loadProductsFromDisk()
         // Se não há produtos salvos, carrega produtos de exemplo
         if products.isEmpty {
@@ -37,30 +45,36 @@ class ProductModel: ObservableObject {
         saveProductsToDisk()
     }
     
-    // MARK: - Persistência com FileManager + JSON
-    private var productsFileURL: URL {
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        return documentsDirectory.appendingPathComponent("products.json")
+    // MARK: - Persistência JSON compatível com versões publicadas
+    private static var defaultProductsFileURL: URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("products.json")
     }
 
     private func saveProductsToDisk() {
         do {
-            let data = try JSONEncoder().encode(products)
-            try data.write(to: productsFileURL)
-            print("✅ Produtos salvos com sucesso.")
+            try store.save(products)
+            logger.info("Products saved. Count: \(self.products.count, privacy: .public)")
         } catch {
-            print("❌ Erro ao salvar produtos: \(error)")
+            logger.error("Failed to save products: \(error.localizedDescription, privacy: .public)")
         }
     }
 
     private func loadProductsFromDisk() {
         do {
-            let data = try Data(contentsOf: productsFileURL)
-            let savedProducts = try JSONDecoder().decode([Product].self, from: data)
-            products = savedProducts
-            print("📥 Produtos carregados com sucesso.")
+            guard let result = try store.load() else {
+                logger.info("No persisted products found.")
+                return
+            }
+            products = result.value
+            logger.info(
+                "Products loaded. Count: \(self.products.count, privacy: .public), legacy: \(result.source.isLegacy, privacy: .public)"
+            )
+            if result.source.recoveredFromBackup {
+                logger.error("Products recovered from backup.")
+            }
         } catch {
-            print("⚠️ Nenhum produto salvo encontrado ou erro ao carregar: \(error)")
+            logger.error("Failed to load products: \(error.localizedDescription, privacy: .public)")
         }
     }
     
@@ -93,4 +107,3 @@ class ProductModel: ObservableObject {
         saveProductsToDisk()
     }
 }
-

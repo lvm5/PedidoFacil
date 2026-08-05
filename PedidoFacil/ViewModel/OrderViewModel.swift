@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 import SwiftUI
 
 @MainActor
@@ -22,8 +23,16 @@ class OrderViewModel: ObservableObject {
     @Published var clientOrders: [ClientOrder] = []
     @Published var showClientNameField: Bool = false
     @Published var receiptText: String = ""
+
+    private let clientOrdersStore: JSONFileStore<[ClientOrder]>
+    private let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "PedidoFacil",
+        category: "OrderPersistence"
+    )
     
-    init() {
+    init(clientOrdersStore: JSONFileStore<[ClientOrder]>? = nil) {
+        self.clientOrdersStore = clientOrdersStore
+            ?? JSONFileStore(fileURL: Self.defaultClientOrdersFileURL)
         loadClientOrdersFromDisk()
     }
    
@@ -228,30 +237,35 @@ class OrderViewModel: ObservableObject {
 // MARK: - Persistência com FileManager + JSON
 
 private extension OrderViewModel {
-    var clientOrdersFileURL: URL {
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        return documentsDirectory.appendingPathComponent("clientOrders.json")
+    static var defaultClientOrdersFileURL: URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("clientOrders.json")
     }
 
     func saveClientOrdersToDisk() {
         do {
-            let data = try JSONEncoder().encode(clientOrders)
-            try data.write(to: clientOrdersFileURL)
-            print("✅ Pedidos salvos com sucesso.")
+            try clientOrdersStore.save(clientOrders)
+            logger.info("Orders saved. Count: \(self.clientOrders.count, privacy: .public)")
         } catch {
-            print("❌ Erro ao salvar pedidos: \(error)")
+            logger.error("Failed to save orders: \(error.localizedDescription, privacy: .public)")
         }
     }
     
     func loadClientOrdersFromDisk() {
         do {
-            let data = try Data(contentsOf: clientOrdersFileURL)
-            let savedOrders = try JSONDecoder().decode([ClientOrder].self, from: data)
-            clientOrders = savedOrders
-            print("📥 Pedidos carregados com sucesso.")
+            guard let result = try clientOrdersStore.load() else {
+                logger.info("No persisted orders found.")
+                return
+            }
+            clientOrders = result.value
+            logger.info(
+                "Orders loaded. Count: \(self.clientOrders.count, privacy: .public), legacy: \(result.source.isLegacy, privacy: .public)"
+            )
+            if result.source.recoveredFromBackup {
+                logger.error("Orders recovered from backup.")
+            }
         } catch {
-            print("⚠️ Nenhum pedido salvo encontrado ou erro ao carregar: \(error)")
+            logger.error("Failed to load orders: \(error.localizedDescription, privacy: .public)")
         }
     }
 }
-
