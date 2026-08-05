@@ -37,6 +37,7 @@ struct DailySalesView: View {
                 activeListSection
                 actionsSection
                 pendingSection
+                historySection
                 legacySection
             }
             .navigationTitle("Central do Dia")
@@ -49,6 +50,16 @@ struct DailySalesView: View {
             }
             .sheet(isPresented: $showingSettings) {
                 OperationalSettingsView(settings: settings)
+            }
+        }
+    }
+
+    private var historySection: some View {
+        Section {
+            NavigationLink {
+                SalesOrderHistoryView(viewModel: fastOrderViewModel)
+            } label: {
+                Label("Histórico comercial", systemImage: "clock.arrow.circlepath")
             }
         }
     }
