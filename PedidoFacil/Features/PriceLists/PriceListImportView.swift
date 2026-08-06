@@ -2,6 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct PriceListImportView: View {
+    @EnvironmentObject private var productModel: ProductModel
     @State private var viewModel: PriceListImportViewModel
     @State private var showingPDFImporter = false
 
@@ -84,7 +85,7 @@ struct PriceListImportView: View {
                     LabeledContent("Canal", value: channel)
                 }
             } footer: {
-                Text("Confira cada marca e preço com a fonte antes de salvar.")
+                Text("Produtos válidos serão publicados no catálogo. Itens pendentes não serão publicados.")
             }
 
             ForEach(draft.items) { item in
@@ -129,10 +130,10 @@ struct PriceListImportView: View {
             if viewModel.draft == nil {
                 viewModel.reviewSource()
             } else {
-                viewModel.saveReviewedList()
+                viewModel.saveReviewedList(publishingTo: productModel)
             }
         } label: {
-            Text(viewModel.draft == nil ? "Revisar produtos" : "Salvar lista revisada")
+            Text(viewModel.draft == nil ? "Revisar produtos" : "Salvar e publicar produtos")
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
         }
@@ -223,6 +224,7 @@ private struct PriceListReviewRow: View {
 
 #Preview("Importar lista") {
     PriceListImportView(viewModel: PriceListImportViewModel())
+        .environmentObject(ProductModel())
 }
 
 #Preview("Revisar lista") {
@@ -230,4 +232,5 @@ private struct PriceListReviewRow: View {
     model.sourceText = "Mussarela São Leopoldo — R$ 36,49 kg\nPresunto R$ 18,79 kg"
     model.reviewSource()
     return PriceListImportView(viewModel: model)
+        .environmentObject(ProductModel())
 }

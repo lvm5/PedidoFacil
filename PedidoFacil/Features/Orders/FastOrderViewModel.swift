@@ -18,7 +18,7 @@ final class FastOrderViewModel {
     var itemNote = ""
     var discountReason = ""
 
-    let products: [Product]
+    private(set) var products: [Product]
     private(set) var customers: [Customer]
 
     private let store: JSONFileStore<[SalesOrder]>
@@ -137,6 +137,15 @@ final class FastOrderViewModel {
            !self.customers.contains(where: { $0.id == selectedCustomerID }) {
             self.selectedCustomerID = nil
             order.customerID = nil
+        }
+    }
+
+    func updateProducts(_ products: [Product]) {
+        self.products = products.sorted { $0.name.localizedCompare($1.name) == .orderedAscending }
+        if let selectedProductID,
+           !self.products.contains(where: { $0.id == selectedProductID }) {
+            self.selectedProductID = nil
+            negotiatedPriceText = ""
         }
     }
 

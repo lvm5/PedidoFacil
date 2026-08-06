@@ -37,6 +37,12 @@ struct ProductRowView: View {
                     Text(product.brand ?? "")
                         .font(.headline)
                         .foregroundStyle(.secondary)
+
+                    if product.purchasePriceIsProvisional == true {
+                        Label("Custo provisório", systemImage: "exclamationmark.circle")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
                 }
                 
                 Spacer()
@@ -44,6 +50,7 @@ struct ProductRowView: View {
                 Button(action: {
                     product.purchasePrice = purchasePrice
                     product.sellingPrice = sellingPrice
+                    product.purchasePriceIsProvisional = false
                     productModel.update(product)
                     viewModel.selectedProduct = product
                 }) {

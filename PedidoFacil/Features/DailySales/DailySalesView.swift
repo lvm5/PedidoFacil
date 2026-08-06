@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DailySalesView: View {
+    @ObservedObject private var productModel: ProductModel
     @State private var settings: OperationalSettings
     @State private var fastOrderViewModel: FastOrderViewModel
     @State private var priceListViewModel: PriceListImportViewModel
@@ -8,23 +9,16 @@ struct DailySalesView: View {
     @State private var campaignStore: CampaignStore
     @State private var showingSettings = false
 
-    private let products: [Product]
-
-    init(products: [Product]) {
-        self.products = products
+    init(productModel: ProductModel, priceListViewModel: PriceListImportViewModel) {
+        self.productModel = productModel
         let customers = CustomerStore()
         _settings = State(initialValue: OperationalSettings())
         _customerStore = State(initialValue: customers)
         _campaignStore = State(initialValue: CampaignStore())
-        _priceListViewModel = State(
-            initialValue: PriceListImportViewModel(
-                knownBrands: Array(Set(products.compactMap(\.brand))),
-                knownCategories: Array(Set(products.map(\.category)))
-            )
-        )
+        _priceListViewModel = State(initialValue: priceListViewModel)
         _fastOrderViewModel = State(
             initialValue: FastOrderViewModel(
-                products: products,
+                products: productModel.products,
                 customers: customers.activeCustomers
             )
         )
@@ -111,7 +105,8 @@ struct DailySalesView: View {
             NavigationLink {
                 FastOrderView(
                     viewModel: fastOrderViewModel,
-                    customerProvider: { CustomerStore().activeCustomers }
+                    customerProvider: { CustomerStore().activeCustomers },
+                    productProvider: { productModel.products }
                 )
             } label: {
                 Label("Criar pedido", systemImage: "cart.badge.plus")
@@ -249,6 +244,11 @@ private extension String {
 }
 
 #Preview("Central do Dia") {
-    DailySalesView(products: [])
+    let productModel = ProductModel()
+    DailySalesView(
+        productModel: productModel,
+        priceListViewModel: PriceListImportViewModel()
+    )
+        .environmentObject(productModel)
         .environmentObject(OrderViewModel())
 }

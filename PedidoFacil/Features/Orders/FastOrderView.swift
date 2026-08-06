@@ -3,13 +3,16 @@ import SwiftUI
 struct FastOrderView: View {
     @State private var viewModel: FastOrderViewModel
     private let customerProvider: () -> [Customer]
+    private let productProvider: () -> [Product]
 
     init(
         viewModel: FastOrderViewModel,
-        customerProvider: @escaping () -> [Customer] = { [] }
+        customerProvider: @escaping () -> [Customer] = { [] },
+        productProvider: @escaping () -> [Product] = { [] }
     ) {
         _viewModel = State(initialValue: viewModel)
         self.customerProvider = customerProvider
+        self.productProvider = productProvider
     }
 
     var body: some View {
@@ -38,6 +41,8 @@ struct FastOrderView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             viewModel.updateCustomers(customerProvider())
+            let currentProducts = productProvider()
+            if !currentProducts.isEmpty { viewModel.updateProducts(currentProducts) }
         }
     }
 
