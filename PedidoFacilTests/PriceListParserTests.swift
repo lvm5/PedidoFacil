@@ -69,4 +69,42 @@ final class PriceListParserTests: XCTestCase {
         XCTAssertEqual(list.items.count, 2)
         XCTAssertTrue(list.items.allSatisfy { $0.issues.contains(.duplicate) })
     }
+
+    func testWhatsAppDecorationsAndAlternativePricesBecomeSeparateItems() throws {
+        let list = PriceListParser(knownBrands: ["Confina", "Bip"]).parse("""
+        *BOM DIA*
+        🐔Coxa/sobrecoxa Confina 6,49 // 5,99 Bip
+        ❌ Pedido até as 16:30 ❌
+        """)
+
+        XCTAssertEqual(list.items.count, 2)
+        XCTAssertEqual(list.items[0].price, Decimal(string: "6.49"))
+        XCTAssertEqual(list.items[1].price, Decimal(string: "5.99"))
+        XCTAssertEqual(list.items[1].name, "Coxa/sobrecoxa")
+        XCTAssertEqual(list.items[1].brand, "Bip")
+    }
+
+    func testPipeSeparatedPDFRowMapsColumns() throws {
+        let item = try XCTUnwrap(
+            PriceListParser().parse("MUSSARELA | LACTOPAR | 24kg | R$ 35,99").items.first
+        )
+
+        XCTAssertEqual(item.name, "MUSSARELA")
+        XCTAssertEqual(item.brand, "LACTOPAR")
+        XCTAssertEqual(item.unit, "24kg")
+        XCTAssertEqual(item.price, Decimal(string: "35.99"))
+    }
+
+    func testRecognizesBrandAfterPriceAndPackageBeforePrice() throws {
+        let item = try XCTUnwrap(
+            PriceListParser(knownBrands: ["Sitio"])
+                .parse("Carcaça 2.0 20kg 10,79 Sitio").items.first
+        )
+
+        XCTAssertEqual(item.name, "Carcaça 2.0 20kg")
+        XCTAssertEqual(item.brand, "Sitio")
+        XCTAssertEqual(item.unit, "20kg")
+        XCTAssertEqual(item.price, Decimal(string: "10.79"))
+        XCTAssertTrue(item.issues.isEmpty)
+    }
 }

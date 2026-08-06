@@ -84,8 +84,8 @@ struct DailySalesView: View {
             TimelineView(.periodic(from: .now, by: 60)) { context in
                 VStack(alignment: .leading, spacing: 6) {
                     LabeledContent(
-                        "Horário limite",
-                        value: deadlineText(on: context.date)
+                        "Horário de pedidos",
+                        value: operatingHoursText(on: context.date)
                     )
                     Text(remainingText(at: context.date))
                         .font(.headline)
@@ -213,6 +213,11 @@ struct DailySalesView: View {
     private func deadlineText(on date: Date) -> String {
         guard let deadline = settings.deadline(on: date) else { return "—" }
         return deadline.formatted(date: .omitted, time: .shortened)
+    }
+
+    private func operatingHoursText(on date: Date) -> String {
+        guard let start = settings.startTime(on: date) else { return deadlineText(on: date) }
+        return "\(start.formatted(date: .omitted, time: .shortened))–\(deadlineText(on: date))"
     }
 
     private func remainingText(at date: Date) -> String {

@@ -1,7 +1,9 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct PriceListImportView: View {
     @State private var viewModel: PriceListImportViewModel
+    @State private var showingPDFImporter = false
 
     init(viewModel: PriceListImportViewModel) {
         _viewModel = State(initialValue: viewModel)
@@ -26,14 +28,25 @@ struct PriceListImportView: View {
     private var sourceInputView: some View {
         Form {
             Section {
+                Button {
+                    showingPDFImporter = true
+                } label: {
+                    Label("Selecionar tabela PDF", systemImage: "doc.badge.plus")
+                }
+                .accessibilityIdentifier("select-price-list-pdf")
+
+                Text("ou")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
                 TextEditor(text: $viewModel.sourceText)
                     .frame(minHeight: 220)
                     .accessibilityLabel("Texto da lista de preços")
                     .accessibilityIdentifier("price-list-source")
             } header: {
-                Text("Cole a lista recebida")
+                Text("Importe um PDF ou cole a lista recebida")
             } footer: {
-                Text("O texto original será preservado. Marcas, preços ou linhas ambíguas precisarão de confirmação.")
+                Text("PDFs com texto e mensagens do WhatsApp são preparados para revisão. Marcas, preços ou linhas ambíguas precisarão de confirmação.")
             }
 
             if let successMessage = viewModel.successMessage {
@@ -45,6 +58,18 @@ struct PriceListImportView: View {
 
             errorSection
         }
+        .fileImporter(
+            isPresented: $showingPDFImporter,
+            allowedContentTypes: [.pdf],
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                if let url = urls.first { viewModel.importPDF(from: url) }
+            case .failure(let error):
+                viewModel.reportImportError(error)
+            }
+        }
     }
 
     private func reviewView(_ draft: DailyPriceList) -> some View {
@@ -52,6 +77,12 @@ struct PriceListImportView: View {
             Section {
                 LabeledContent("Itens", value: "\(draft.items.count)")
                 LabeledContent("Para revisar", value: "\(draft.itemsNeedingReview.count)")
+                if let sourceName = draft.sourceName {
+                    LabeledContent("Arquivo", value: sourceName)
+                }
+                if let channel = draft.salesChannel {
+                    LabeledContent("Canal", value: channel)
+                }
             } footer: {
                 Text("Confira cada marca e preço com a fonte antes de salvar.")
             }

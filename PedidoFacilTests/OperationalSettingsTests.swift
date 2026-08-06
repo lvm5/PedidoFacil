@@ -7,6 +7,7 @@ final class OperationalSettingsTests: XCTestCase {
         let profile = OperationalProfile()
 
         XCTAssertEqual(profile.submissionDeadline, LocalTime(hour: 16, minute: 30))
+        XCTAssertEqual(profile.submissionStartTime, LocalTime(hour: 8, minute: 0))
         XCTAssertEqual(profile.reminderOffsetsInMinutes, [60, 30, 10])
     }
 
@@ -38,5 +39,22 @@ final class OperationalSettingsTests: XCTestCase {
         XCTAssertEqual(restored.profile.reminderOffsetsInMinutes, [60, 30, 10])
         XCTAssertEqual(components.hour, 18)
         XCTAssertEqual(components.minute, 15)
+    }
+
+    func testLegacyProfileWithoutStartTimeMigratesToDefault() throws {
+        let json = """
+        {
+          "operationName": "Operação antiga",
+          "submissionDeadline": {"hour": 17, "minute": 45},
+          "reminderOffsetsInMinutes": [60, 30, 10],
+          "customerSegments": ["Loja"],
+          "messageSignature": "Equipe"
+        }
+        """
+
+        let profile = try JSONDecoder().decode(OperationalProfile.self, from: Data(json.utf8))
+
+        XCTAssertEqual(profile.submissionStartTime, LocalTime(hour: 8, minute: 0))
+        XCTAssertEqual(profile.submissionDeadline, LocalTime(hour: 17, minute: 45))
     }
 }
