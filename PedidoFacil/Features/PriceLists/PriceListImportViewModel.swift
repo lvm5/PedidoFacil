@@ -12,6 +12,7 @@ final class PriceListImportViewModel {
     private(set) var successMessage: String?
 
     private let parser: PriceListParser
+    private let pdfExtractor: PDFPriceListExtractor
     private let store: JSONFileStore<[DailyPriceList]>
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "PedidoFacil",
@@ -21,6 +22,7 @@ final class PriceListImportViewModel {
     init(
         knownBrands: [String] = [],
         knownCategories: [String] = [],
+        pdfExtractor: PDFPriceListExtractor = PDFPriceListExtractor(),
         store: JSONFileStore<[DailyPriceList]>? = nil
     ) {
         parser = PriceListParser(
@@ -28,6 +30,7 @@ final class PriceListImportViewModel {
             knownCategories: knownCategories
         )
         self.store = store ?? JSONFileStore(fileURL: Self.defaultFileURL)
+        self.pdfExtractor = pdfExtractor
         loadSavedLists()
     }
 
@@ -56,6 +59,33 @@ final class PriceListImportViewModel {
         errorMessage = nil
         successMessage = nil
         logger.info("Price list parsed. Item count: \(parsed.items.count, privacy: .public)")
+    }
+
+    func importPDF(from url: URL) {
+        let hasAccess = url.startAccessingSecurityScopedResource()
+        defer {
+            if hasAccess { url.stopAccessingSecurityScopedResource() }
+        }
+
+        do {
+            let extraction = try pdfExtractor.extract(from: url)
+            sourceText = extraction.text
+            var parsed = parser.parse(extraction.text)
+            parsed.sourceKind = .pdf
+            parsed.sourceName = extraction.sourceName
+            parsed.salesChannel = extraction.salesChannel
+            guard !parsed.items.isEmpty else {
+                errorMessage = "Nenhum produto foi identificado no PDF."
+                return
+            }
+            draft = parsed
+            errorMessage = nil
+            successMessage = nil
+            logger.info("PDF price list parsed. Item count: \(parsed.items.count, privacy: .public)")
+        } catch {
+            errorMessage = error.localizedDescription
+            logger.error("Failed to import PDF: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     func updateItem(
@@ -125,6 +155,10 @@ final class PriceListImportViewModel {
         draft = nil
         errorMessage = nil
         successMessage = nil
+    }
+
+    func reportImportError(_ error: Error) {
+        errorMessage = "Não foi possível selecionar o PDF: \(error.localizedDescription)"
     }
 
     private func loadSavedLists() {

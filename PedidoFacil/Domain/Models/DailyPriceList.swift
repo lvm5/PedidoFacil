@@ -7,6 +7,11 @@ enum PriceListStatus: String, Codable, CaseIterable {
     case archived
 }
 
+enum PriceListSourceKind: String, Codable, CaseIterable {
+    case pastedText
+    case pdf
+}
+
 enum PriceListItemIssue: String, Codable, Hashable, CaseIterable {
     case missingName
     case missingBrand
@@ -63,6 +68,9 @@ struct DailyPriceList: Identifiable, Codable, Equatable {
     var createdAt: Date
     var updatedAt: Date
     var validUntil: Date?
+    var sourceKind: PriceListSourceKind?
+    var sourceName: String?
+    var salesChannel: String?
     var status: PriceListStatus
     var items: [PriceListItem]
 
@@ -72,6 +80,9 @@ struct DailyPriceList: Identifiable, Codable, Equatable {
         createdAt: Date = Date(),
         updatedAt: Date = Date(),
         validUntil: Date? = nil,
+        sourceKind: PriceListSourceKind? = .pastedText,
+        sourceName: String? = nil,
+        salesChannel: String? = nil,
         status: PriceListStatus = .draft,
         items: [PriceListItem]
     ) {
@@ -80,6 +91,9 @@ struct DailyPriceList: Identifiable, Codable, Equatable {
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.validUntil = validUntil
+        self.sourceKind = sourceKind
+        self.sourceName = sourceName
+        self.salesChannel = salesChannel
         self.status = status
         self.items = items
     }

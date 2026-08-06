@@ -42,6 +42,10 @@ final class OperationalSettings {
         profile.submissionDeadline.date(on: day, calendar: calendar)
     }
 
+    func startTime(on day: Date, calendar: Calendar = .current) -> Date? {
+        profile.submissionStartTime.date(on: day, calendar: calendar)
+    }
+
     private static var defaultFileURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("operationalProfile.json")
