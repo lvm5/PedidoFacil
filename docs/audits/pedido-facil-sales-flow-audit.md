@@ -1,5 +1,7 @@
 # Auditoria E2E — fluxo comercial Pedido Fácil
 
+> Registro histórico. Para o estado atual, consulte [Auditoria E2E total — 2026-08-06](e2e-total-2026-08-06.md).
+
 Data da linha de base: 2026-08-05
 Branch de trabalho: `codex/pedido-facil-sales-flow-80-20`
 Commit-base local: `7e5d9f2cc0d1921df3586f6074bfa78ff5cf193f` (`Adjust views`)
