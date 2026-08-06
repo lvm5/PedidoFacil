@@ -22,6 +22,7 @@ struct ProductEditView: View {
     @State private var brand: String = ""
     @State private var selectedProduct: Product?
     @State private var didAppear: Bool = false
+    @State private var showingDeleteConfirmation = false
     
     let product: Product?
     let isEditing: Bool
@@ -35,7 +36,7 @@ struct ProductEditView: View {
     var sellingPriceValue: Double { parseDecimal(sellingPrice) ?? 0 }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section(header: Text("Informações Básicas")) {
                     TextField("Nome do produto", text: $name)
@@ -86,10 +87,7 @@ struct ProductEditView: View {
                 if isEditing {
                     Section {
                         Button("Excluir Produto", role: .destructive) {
-                            if let product = product {
-                                productModel.delete(product)
-                                dismiss()
-                            }
+                            showingDeleteConfirmation = true
                         }
                     }
                 }
@@ -124,15 +122,30 @@ struct ProductEditView: View {
                     didAppear = true
                 }
             }
+            .confirmationDialog(
+                "Excluir este produto?",
+                isPresented: $showingDeleteConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Excluir produto", role: .destructive) {
+                    if let product {
+                        productModel.delete(product)
+                        dismiss()
+                    }
+                }
+                Button("Cancelar", role: .cancel) {}
+            } message: {
+                Text("Esta acao nao pode ser desfeita.")
+            }
         }
         .scrollDismissesKeyboard(.interactively)
     }
     
     private var isFormValid: Bool {
-        !name.isEmpty &&
-        parseDecimal(purchasePrice) != nil &&
-        parseDecimal(sellingPrice) != nil &&
-        Int(unitsPerPackage) != nil
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        (parseDecimal(purchasePrice) ?? -1) >= 0 &&
+        (parseDecimal(sellingPrice) ?? -1) > 0 &&
+        (Int(unitsPerPackage) ?? 0) > 0
     }
     
     private func saveProduct() {
@@ -144,27 +157,27 @@ struct ProductEditView: View {
         
         if isEditing, let existingProduct = product {
             var updatedProduct = existingProduct
-            updatedProduct.name = name
+            updatedProduct.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
             updatedProduct.purchasePrice = purchasePriceValue
             updatedProduct.sellingPrice = sellingPriceValue
             updatedProduct.packageType = packageType
             updatedProduct.packageSize = packageSize
             updatedProduct.unitsPerPackage = unitsPerPackageValue
-            updatedProduct.category = category
-            updatedProduct.brand = brand.isEmpty ? nil : brand
+            updatedProduct.category = category.trimmingCharacters(in: .whitespacesAndNewlines)
+            updatedProduct.brand = brand.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
             updatedProduct.purchasePriceIsProvisional = false
             
             productModel.update(updatedProduct)
         } else {
             let newProduct = Product(
-                name: name,
+                name: name.trimmingCharacters(in: .whitespacesAndNewlines),
                 purchasePrice: purchasePriceValue,
                 sellingPrice: sellingPriceValue,
                 packageType: packageType,
                 packageSize: packageSize,
                 unitsPerPackage: unitsPerPackageValue,
-                category: category,
-                brand: brand.isEmpty ? nil : brand,
+                category: category.trimmingCharacters(in: .whitespacesAndNewlines),
+                brand: brand.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty,
                 purchasePriceIsProvisional: false
             )
             
@@ -177,6 +190,10 @@ struct ProductEditView: View {
     private func parseDecimal(_ value: String) -> Double? {
         Double(value.replacingOccurrences(of: ",", with: "."))
     }
+}
+
+private extension String {
+    var nilIfEmpty: String? { isEmpty ? nil : self }
 }
 
 #Preview {

@@ -24,6 +24,7 @@ enum ProductPublicationError: LocalizedError {
 @MainActor
 class ProductModel: ObservableObject {
     @Published var products: [Product] = []
+    @Published private(set) var persistenceErrorMessage: String?
 
     private let store: JSONFileStore<[Product]>
     private let logger = Logger(
@@ -45,20 +46,21 @@ class ProductModel: ObservableObject {
 
     // Funções para editar, adicionar e remover produtos
     func add(_ product: Product) {
-        products.append(product)
-        saveProductsToDisk()
+        var nextProducts = products
+        nextProducts.append(product)
+        save(nextProducts)
     }
 
     func update(_ product: Product) {
         if let index = products.firstIndex(where: { $0.id == product.id }) {
-            products[index] = product
-            saveProductsToDisk()
+            var nextProducts = products
+            nextProducts[index] = product
+            save(nextProducts)
         }
     }
 
     func delete(_ product: Product) {
-        products.removeAll { $0.id == product.id }
-        saveProductsToDisk()
+        save(products.filter { $0.id != product.id })
     }
 
     func publish(_ list: DailyPriceList) throws -> ProductPublicationSummary {
@@ -114,11 +116,14 @@ class ProductModel: ObservableObject {
             .appendingPathComponent("products.json")
     }
 
-    private func saveProductsToDisk() {
+    private func save(_ nextProducts: [Product]) {
         do {
-            try store.save(products)
+            try store.save(nextProducts)
+            products = nextProducts
+            persistenceErrorMessage = nil
             logger.info("Products saved. Count: \(self.products.count, privacy: .public)")
         } catch {
+            persistenceErrorMessage = "Não foi possível salvar os produtos. Tente novamente."
             logger.error("Failed to save products: \(error.localizedDescription, privacy: .public)")
         }
     }
@@ -186,6 +191,6 @@ class ProductModel: ObservableObject {
             Product(name: "Queijo coalho espeto", purchasePrice: 42.99, sellingPrice: 48.99, packageType: "Kg", packageSize: "1kg", unitsPerPackage: 1, category: "Laticínios", brand: "Lactopar"),
             Product(name: "Requeijão", purchasePrice: 34.99, sellingPrice: 41.99, packageType: "Bisnaga", packageSize: "1.8kg", unitsPerPackage: 1, category: "Laticínios", brand: "C/Amido")
         ]
-        saveProductsToDisk()
+        save(products)
     }
 }

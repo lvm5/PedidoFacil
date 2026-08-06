@@ -97,6 +97,28 @@ final class PriceListImportViewModelTests: XCTestCase {
         XCTAssertTrue(model.canSave)
     }
 
+    func testRetryAfterProductFailureDoesNotDuplicateReviewedList() throws {
+        let directoryURL = try makeTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: directoryURL) }
+        let listStore = JSONFileStore<[DailyPriceList]>(
+            fileURL: directoryURL.appendingPathComponent("lists.json")
+        )
+        let model = PriceListImportViewModel(knownBrands: ["Marca"], store: listStore)
+        let failingProductModel = ProductModel(
+            store: JSONFileStore(fileURL: URL(fileURLWithPath: "/dev/null/products.json")),
+            loadSamplesWhenEmpty: false
+        )
+        model.sourceText = "Produto Marca R$ 10,00 kg"
+        model.reviewSource()
+
+        model.saveReviewedList(publishingTo: failingProductModel)
+        model.saveReviewedList(publishingTo: failingProductModel)
+
+        let stored = try XCTUnwrap(listStore.load()?.value)
+        XCTAssertEqual(stored.count, 1)
+        XCTAssertEqual(stored.first?.status, .reviewed)
+    }
+
     private func makeTemporaryDirectory() throws -> URL {
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)

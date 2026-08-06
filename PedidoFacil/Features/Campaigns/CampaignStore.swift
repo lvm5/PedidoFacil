@@ -70,8 +70,9 @@ final class CampaignStore {
             createdAt: now,
             updatedAt: now
         )
-        campaigns.append(campaign)
-        return persist() ? campaign : nil
+        var nextCampaigns = campaigns
+        nextCampaigns.append(campaign)
+        return persist(nextCampaigns) ? campaign : nil
     }
 
     func updateInteraction(
@@ -81,7 +82,8 @@ final class CampaignStore {
         note: String? = nil,
         now: Date = Date()
     ) {
-        guard let campaignIndex = campaigns.firstIndex(where: { $0.id == campaignID }) else { return }
+        var nextCampaigns = campaigns
+        guard let campaignIndex = nextCampaigns.firstIndex(where: { $0.id == campaignID }) else { return }
         let interaction = CustomerInteraction(
             customerID: customerID,
             status: status,
@@ -89,21 +91,23 @@ final class CampaignStore {
             updatedAt: now,
             note: note?.trimmingCharacters(in: .whitespacesAndNewlines)
         )
-        campaigns[campaignIndex].interactions.append(interaction)
-        campaigns[campaignIndex].updatedAt = now
-        _ = persist()
+        nextCampaigns[campaignIndex].interactions.append(interaction)
+        nextCampaigns[campaignIndex].updatedAt = now
+        _ = persist(nextCampaigns)
     }
 
     func archive(id: UUID, now: Date = Date()) {
-        guard let index = campaigns.firstIndex(where: { $0.id == id }) else { return }
-        campaigns[index].archivedAt = now
-        campaigns[index].updatedAt = now
-        _ = persist()
+        var nextCampaigns = campaigns
+        guard let index = nextCampaigns.firstIndex(where: { $0.id == id }) else { return }
+        nextCampaigns[index].archivedAt = now
+        nextCampaigns[index].updatedAt = now
+        _ = persist(nextCampaigns)
     }
 
-    private func persist() -> Bool {
+    private func persist(_ nextCampaigns: [SalesCampaign]) -> Bool {
         do {
-            try store.save(campaigns)
+            try store.save(nextCampaigns)
+            campaigns = nextCampaigns
             errorMessage = nil
             logger.debug("Campaign collection persisted. Count: \(self.campaigns.count, privacy: .public)")
             return true

@@ -11,11 +11,23 @@ struct SalesOrderHistoryView: View {
     }
 
     let viewModel: FastOrderViewModel
+    let customerProvider: () -> [Customer]
+    let productProvider: () -> [Product]
 
     @State private var period: Period = .today
     @State private var status: SalesOrderStatus?
     @State private var onlyDiscounts = false
     @State private var query = ""
+
+    init(
+        viewModel: FastOrderViewModel,
+        customerProvider: @escaping () -> [Customer] = { [] },
+        productProvider: @escaping () -> [Product] = { [] }
+    ) {
+        self.viewModel = viewModel
+        self.customerProvider = customerProvider
+        self.productProvider = productProvider
+    }
 
     var body: some View {
         List {
@@ -34,16 +46,24 @@ struct SalesOrderHistoryView: View {
 
             Section("Pedidos") {
                 if filteredOrders.isEmpty {
-                    ContentUnavailableView.search(text: query)
+                    if query.isEmpty {
+                        ContentUnavailableView(
+                            "Nenhum pedido neste período",
+                            systemImage: "doc.text.magnifyingglass",
+                            description: Text("Altere os filtros ou crie um pedido pela tela Início.")
+                        )
+                    } else {
+                        ContentUnavailableView.search(text: query)
+                    }
                 } else {
                     ForEach(filteredOrders) { order in
-                        DisclosureGroup {
-                            ForEach(order.statusHistory) { change in
-                                LabeledContent(
-                                    statusLabel(change.status),
-                                    value: change.changedAt.formatted(date: .abbreviated, time: .shortened)
-                                )
-                            }
+                        NavigationLink {
+                            FastOrderView(
+                                viewModel: viewModel,
+                                customerProvider: customerProvider,
+                                productProvider: productProvider
+                            )
+                            .onAppear { viewModel.openOrder(id: order.id) }
                         } label: {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(order.customerName).font(.headline)

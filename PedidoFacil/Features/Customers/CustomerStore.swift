@@ -76,23 +76,24 @@ final class CustomerStore {
             state: cleanState
         )
 
+        var nextCustomers = customers
         let customer: Customer
-        if let id, let index = customers.firstIndex(where: { $0.id == id }) {
-            customers[index].name = cleanName
-            customers[index].segment = segment.trimmed.nilIfEmpty ?? "Outros"
-            customers[index].tags = normalizedTags
-            customers[index].city = cleanCity
-            customers[index].state = cleanState
-            customers[index].postalCode = postalCode?.trimmed.nilIfEmpty
-            customers[index].street = street?.trimmed.nilIfEmpty
-            customers[index].addressNumber = addressNumber?.trimmed.nilIfEmpty
-            customers[index].neighborhood = neighborhood?.trimmed.nilIfEmpty
-            customers[index].addressComplement = addressComplement?.trimmed.nilIfEmpty
-            customers[index].deliveryRoute = deliveryRoute?.trimmed.nilIfEmpty
-            customers[index].deliveryDays = resolvedDeliveryDays.nilIfEmpty
-            customers[index].notes = notes?.trimmed.nilIfEmpty
-            customers[index].updatedAt = now
-            customer = customers[index]
+        if let id, let index = nextCustomers.firstIndex(where: { $0.id == id }) {
+            nextCustomers[index].name = cleanName
+            nextCustomers[index].segment = segment.trimmed.nilIfEmpty ?? "Outros"
+            nextCustomers[index].tags = normalizedTags
+            nextCustomers[index].city = cleanCity
+            nextCustomers[index].state = cleanState
+            nextCustomers[index].postalCode = postalCode?.trimmed.nilIfEmpty
+            nextCustomers[index].street = street?.trimmed.nilIfEmpty
+            nextCustomers[index].addressNumber = addressNumber?.trimmed.nilIfEmpty
+            nextCustomers[index].neighborhood = neighborhood?.trimmed.nilIfEmpty
+            nextCustomers[index].addressComplement = addressComplement?.trimmed.nilIfEmpty
+            nextCustomers[index].deliveryRoute = deliveryRoute?.trimmed.nilIfEmpty
+            nextCustomers[index].deliveryDays = resolvedDeliveryDays.nilIfEmpty
+            nextCustomers[index].notes = notes?.trimmed.nilIfEmpty
+            nextCustomers[index].updatedAt = now
+            customer = nextCustomers[index]
         } else {
             customer = Customer(
                 name: cleanName,
@@ -111,24 +112,26 @@ final class CustomerStore {
                 createdAt: now,
                 updatedAt: now
             )
-            customers.append(customer)
+            nextCustomers.append(customer)
         }
 
-        return persist() ? customer : nil
+        return persist(nextCustomers) ? customer : nil
     }
 
     func archive(id: UUID, now: Date = Date()) {
-        guard let index = customers.firstIndex(where: { $0.id == id }) else { return }
-        customers[index].archivedAt = now
-        customers[index].updatedAt = now
-        _ = persist()
+        var nextCustomers = customers
+        guard let index = nextCustomers.firstIndex(where: { $0.id == id }) else { return }
+        nextCustomers[index].archivedAt = now
+        nextCustomers[index].updatedAt = now
+        _ = persist(nextCustomers)
     }
 
     func restore(id: UUID, now: Date = Date()) {
-        guard let index = customers.firstIndex(where: { $0.id == id }) else { return }
-        customers[index].archivedAt = nil
-        customers[index].updatedAt = now
-        _ = persist()
+        var nextCustomers = customers
+        guard let index = nextCustomers.firstIndex(where: { $0.id == id }) else { return }
+        nextCustomers[index].archivedAt = nil
+        nextCustomers[index].updatedAt = now
+        _ = persist(nextCustomers)
     }
 
     private func matchesFilters(_ customer: Customer) -> Bool {
@@ -148,9 +151,10 @@ final class CustomerStore {
         return matchesSegment && searchable.localizedCaseInsensitiveContains(cleanQuery)
     }
 
-    private func persist() -> Bool {
+    private func persist(_ nextCustomers: [Customer]) -> Bool {
         do {
-            try store.save(customers)
+            try store.save(nextCustomers)
+            customers = nextCustomers
             errorMessage = nil
             logger.debug("Customer collection persisted. Count: \(self.customers.count, privacy: .public)")
             return true

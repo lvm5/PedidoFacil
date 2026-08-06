@@ -1,87 +1,57 @@
-//
-//  ProductRowView.swift
-//  PedidoFacil
-//
-//  Created by Leandro Morais on 2025-07-18.
-//
-import Foundation
-import Swift
 import SwiftUI
 
 @available(iOS 18.0, *)
 struct ProductRowView: View {
-    @EnvironmentObject var productModel: ProductModel
-    @EnvironmentObject var viewModel: OrderViewModel
-    @State var product: Product
-    @State private var purchasePrice: Double
-    @State private var sellingPrice: Double
-    let secondaryColor: Color
-    
-    init(product: Product, secondaryColor: Color) {
-        _product = State(initialValue: product)
-        _purchasePrice = State(initialValue: product.purchasePrice)
-        _sellingPrice = State(initialValue: product.sellingPrice)
-        self.secondaryColor = secondaryColor
-    }
-    
+    let product: Product
+
     var body: some View {
-        
-        VStack(alignment: .leading) {
-            HStack {
-                VStack(alignment: .leading) {
-                    Text(product.name)
-                        .font(.title2)
-                        .bold()
-                        .foregroundStyle(.primary)
+        HStack(alignment: .top, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(product.name)
+                    .font(.headline)
 
-                    Text(product.brand ?? "")
-                        .font(.headline)
+                if let brand = product.brand, !brand.isEmpty {
+                    Text(brand)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
-
-                    if product.purchasePriceIsProvisional == true {
-                        Label("Custo provisório", systemImage: "exclamationmark.circle")
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                    }
                 }
-                
-                Spacer()
-                
-                Button(action: {
-                    product.purchasePrice = purchasePrice
-                    product.sellingPrice = sellingPrice
-                    product.purchasePriceIsProvisional = false
-                    productModel.update(product)
-                    viewModel.selectedProduct = product
-                }) {
-                    Text("Editar")
-                        .frame(maxWidth: 80, maxHeight: 40)
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(secondaryColor)
-                        .cornerRadius(10)
+
+                let details = [product.category, product.packageSize ?? ""]
+                    .filter { !$0.isEmpty }
+                    .joined(separator: " · ")
+                if !details.isEmpty {
+                    Text(details)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                if product.purchasePriceIsProvisional == true {
+                    Label("Custo provisório", systemImage: "exclamationmark.circle")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
                 }
             }
+
+            Spacer()
+
+            Text(product.sellingPrice.asCurrency())
+                .font(.headline)
         }
+        .contentShape(Rectangle())
     }
 }
 
-@available(iOS 18.0, *)
 #Preview(traits: .sizeThatFitsLayout) {
     ProductRowView(
         product: Product(
             name: "Produto Teste",
-            purchasePrice: 10.0,
-            sellingPrice: 15.0,
+            purchasePrice: 10,
+            sellingPrice: 15,
             packageType: "Pacote",
             packageSize: "1kg",
             unitsPerPackage: 1,
             category: "Teste"
-        ),
-        secondaryColor: .purple
+        )
     )
-    .environmentObject(ProductModel())
-    .environmentObject(OrderViewModel())
     .padding()
 }

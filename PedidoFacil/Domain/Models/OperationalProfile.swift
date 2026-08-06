@@ -11,6 +11,26 @@ struct LocalTime: Codable, Equatable, Hashable {
         self.minute = minute
     }
 
+    private enum CodingKeys: String, CodingKey {
+        case hour
+        case minute
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        let hour = try values.decode(Int.self, forKey: .hour)
+        let minute = try values.decode(Int.self, forKey: .minute)
+        guard (0...23).contains(hour), (0...59).contains(minute) else {
+            throw DecodingError.dataCorruptedError(
+                forKey: (0...23).contains(hour) ? .minute : .hour,
+                in: values,
+                debugDescription: "Horario fora do intervalo permitido."
+            )
+        }
+        self.hour = hour
+        self.minute = minute
+    }
+
     func date(on day: Date, calendar: Calendar = .current) -> Date? {
         calendar.date(bySettingHour: hour, minute: minute, second: 0, of: day)
     }

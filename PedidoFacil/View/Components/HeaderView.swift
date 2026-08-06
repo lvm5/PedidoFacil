@@ -11,8 +11,6 @@ import SwiftUI
 struct HeaderView: View {
     let title: String
     let primaryColor: Color
-    let onClearAll: () -> Void?
-    let isClearDisabled: Bool?
     
     var body: some View {
         VStack(spacing: 8) {
@@ -43,8 +41,6 @@ struct HeaderView: View {
 #Preview {
     HeaderView(
         title: "Pedido Fácil",
-        primaryColor: Color.blue,
-        onClearAll: {},
-        isClearDisabled: false
+        primaryColor: Color.blue
     )
 }

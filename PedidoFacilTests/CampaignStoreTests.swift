@@ -70,6 +70,32 @@ final class CampaignStoreTests: XCTestCase {
         XCTAssertTrue(message.contains("Equipe Norte"))
     }
 
+    func testFailedSaveDoesNotExposeUnpersistedCampaign() {
+        let store = CampaignStore(
+            store: JSONFileStore(fileURL: URL(fileURLWithPath: "/dev/null/campaigns.json"))
+        )
+        let item = PriceListItem(
+            sourceLineNumber: 1,
+            originalLine: "Produto | Marca | kg | 10,00",
+            name: "Produto",
+            brand: "Marca",
+            price: 10
+        )
+        let list = DailyPriceList(sourceText: item.originalLine, status: .active, items: [item])
+
+        let campaign = store.create(
+            title: "Oferta",
+            priceList: list,
+            selectedItemIDs: [item.id],
+            priorityItemIDs: [],
+            customerIDs: []
+        )
+
+        XCTAssertNil(campaign)
+        XCTAssertTrue(store.campaigns.isEmpty)
+        XCTAssertNotNil(store.errorMessage)
+    }
+
     private func temporaryStore() -> JSONFileStore<[SalesCampaign]> {
         JSONFileStore(
             fileURL: FileManager.default.temporaryDirectory
