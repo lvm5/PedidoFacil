@@ -16,11 +16,15 @@ O caminho atual é importar → revisar → publicar produtos → criar pedido �
 | Build genérico | PASS — `BUILD SUCCEEDED` |
 | Compilação do target XCTest | PASS — `TEST BUILD SUCCEEDED`, 52 métodos |
 | Análise estática | PASS — `ANALYZE SUCCEEDED` |
-| XCTest | bloqueado enquanto nenhum Simulator estiver iniciado |
-| Auditoria visual/interativa | bloqueada enquanto nenhum Simulator estiver iniciado |
+| XCTest no iPhone 17 Pro Max, iOS 26.5 | PASS — 52 aprovados, 0 falhas, 0 skips |
+| Importar → revisar → publicar → catálogo → reiniciar | PASS |
+| Cliente/endereço/rota/dias | PASS — Botucatu, Ter/Qua/Qui |
+| Pedido completo e persistência | PASS |
+| Ajuste recusado → novo rascunho | PASS |
+| Claro/escuro/contraste/Dynamic Type | PASS COM RESSALVA — densidade reduzida nos maiores tamanhos |
 | iPad físico | não executado |
 | App Store | fora do escopo desta branch |
 
-## Roteiro visual restante
+## Gates externos restantes
 
-Importação PDF/texto e retry; publicação e reinício; produto no catálogo; pedido completo; desconto recusado/revisão; cliente/endereço/rota; horários; busca/edição/exclusão; claro/escuro, Dynamic Type e VoiceOver básico.
+Importação pelo seletor de PDF com os arquivos reais, VoiceOver completo, iPad físico e estado de distribuição na App Store. Esses gates não são inferidos pelos testes do Simulator.
