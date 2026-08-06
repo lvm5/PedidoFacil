@@ -82,6 +82,22 @@ struct FastOrderView: View {
                 )
             )
             .textContentType(.name)
+
+            if let customer = viewModel.selectedCustomer {
+                if let address = customer.formattedAddress {
+                    Label(address, systemImage: "mappin.and.ellipse")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                if let days = customer.deliveryDaysText {
+                    Label(
+                        [customer.deliveryRoute, days].compactMap { $0 }.joined(separator: " · "),
+                        systemImage: "truck.box"
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+            }
         }
     }
 

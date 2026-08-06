@@ -63,6 +63,10 @@ final class FastOrderViewModel {
         products.first { $0.id == selectedProductID }
     }
 
+    var selectedCustomer: Customer? {
+        customers.first { $0.id == selectedCustomerID }
+    }
+
     var discountMessage: String {
         messageGenerator.generate(for: order)
     }

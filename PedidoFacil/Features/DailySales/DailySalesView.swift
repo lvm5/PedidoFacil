@@ -9,17 +9,20 @@ struct DailySalesView: View {
     @State private var campaignStore: CampaignStore
     @State private var showingSettings = false
 
-    init(productModel: ProductModel, priceListViewModel: PriceListImportViewModel) {
+    init(
+        productModel: ProductModel,
+        priceListViewModel: PriceListImportViewModel,
+        customerStore: CustomerStore
+    ) {
         self.productModel = productModel
-        let customers = CustomerStore()
         _settings = State(initialValue: OperationalSettings())
-        _customerStore = State(initialValue: customers)
+        _customerStore = State(initialValue: customerStore)
         _campaignStore = State(initialValue: CampaignStore())
         _priceListViewModel = State(initialValue: priceListViewModel)
         _fastOrderViewModel = State(
             initialValue: FastOrderViewModel(
                 products: productModel.products,
-                customers: customers.activeCustomers
+                customers: customerStore.activeCustomers
             )
         )
     }
@@ -105,7 +108,7 @@ struct DailySalesView: View {
             NavigationLink {
                 FastOrderView(
                     viewModel: fastOrderViewModel,
-                    customerProvider: { CustomerStore().activeCustomers },
+                    customerProvider: { customerStore.activeCustomers },
                     productProvider: { productModel.products }
                 )
             } label: {
@@ -247,7 +250,8 @@ private extension String {
     let productModel = ProductModel()
     DailySalesView(
         productModel: productModel,
-        priceListViewModel: PriceListImportViewModel()
+        priceListViewModel: PriceListImportViewModel(),
+        customerStore: CustomerStore()
     )
         .environmentObject(productModel)
         .environmentObject(OrderViewModel())

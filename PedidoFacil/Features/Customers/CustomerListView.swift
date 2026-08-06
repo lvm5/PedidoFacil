@@ -23,7 +23,7 @@ struct CustomerListView: View {
                 customerSection
             }
             .navigationTitle("Clientes")
-            .searchable(text: $store.query, prompt: "Nome, cidade ou etiqueta")
+            .searchable(text: $store.query, prompt: "Nome, endereço, rota ou etiqueta")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Novo cliente", systemImage: "plus") {
@@ -81,6 +81,19 @@ struct CustomerListView: View {
                             Text([customer.segment, customer.city].compactMap { $0 }.joined(separator: " · "))
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
+                            if let address = customer.formattedAddress {
+                                Label(address, systemImage: "mappin.and.ellipse")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            if let days = customer.deliveryDaysText {
+                                Label(
+                                    [customer.deliveryRoute, days].compactMap { $0 }.joined(separator: " · "),
+                                    systemImage: "truck.box"
+                                )
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            }
                             if !customer.tags.isEmpty {
                                 Text(customer.tags.joined(separator: " · "))
                                     .font(.caption)

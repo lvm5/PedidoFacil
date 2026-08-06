@@ -46,6 +46,14 @@ final class CustomerStore {
         segment: String,
         tags: [String],
         city: String?,
+        state: String? = nil,
+        postalCode: String? = nil,
+        street: String? = nil,
+        addressNumber: String? = nil,
+        neighborhood: String? = nil,
+        addressComplement: String? = nil,
+        deliveryRoute: String? = nil,
+        deliveryDays: [DeliveryWeekday]? = nil,
         notes: String?,
         now: Date = Date()
     ) -> Customer? {
@@ -61,13 +69,27 @@ final class CustomerStore {
                 .map { ($0.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current), $0) },
             uniquingKeysWith: { first, _ in first }
         ).values.sorted { $0.localizedCompare($1) == .orderedAscending }
+        let cleanCity = city?.trimmed.nilIfEmpty
+        let cleanState = state?.trimmed.nilIfEmpty?.uppercased()
+        let resolvedDeliveryDays = deliveryDays?.sorted() ?? DeliveryRouteSuggestion.days(
+            for: cleanCity,
+            state: cleanState
+        )
 
         let customer: Customer
         if let id, let index = customers.firstIndex(where: { $0.id == id }) {
             customers[index].name = cleanName
             customers[index].segment = segment.trimmed.nilIfEmpty ?? "Outros"
             customers[index].tags = normalizedTags
-            customers[index].city = city?.trimmed.nilIfEmpty
+            customers[index].city = cleanCity
+            customers[index].state = cleanState
+            customers[index].postalCode = postalCode?.trimmed.nilIfEmpty
+            customers[index].street = street?.trimmed.nilIfEmpty
+            customers[index].addressNumber = addressNumber?.trimmed.nilIfEmpty
+            customers[index].neighborhood = neighborhood?.trimmed.nilIfEmpty
+            customers[index].addressComplement = addressComplement?.trimmed.nilIfEmpty
+            customers[index].deliveryRoute = deliveryRoute?.trimmed.nilIfEmpty
+            customers[index].deliveryDays = resolvedDeliveryDays.nilIfEmpty
             customers[index].notes = notes?.trimmed.nilIfEmpty
             customers[index].updatedAt = now
             customer = customers[index]
@@ -76,7 +98,15 @@ final class CustomerStore {
                 name: cleanName,
                 segment: segment.trimmed.nilIfEmpty ?? "Outros",
                 tags: normalizedTags,
-                city: city?.trimmed.nilIfEmpty,
+                city: cleanCity,
+                state: cleanState,
+                postalCode: postalCode?.trimmed.nilIfEmpty,
+                street: street?.trimmed.nilIfEmpty,
+                addressNumber: addressNumber?.trimmed.nilIfEmpty,
+                neighborhood: neighborhood?.trimmed.nilIfEmpty,
+                addressComplement: addressComplement?.trimmed.nilIfEmpty,
+                deliveryRoute: deliveryRoute?.trimmed.nilIfEmpty,
+                deliveryDays: resolvedDeliveryDays.nilIfEmpty,
                 notes: notes?.trimmed.nilIfEmpty,
                 createdAt: now,
                 updatedAt: now
@@ -105,7 +135,15 @@ final class CustomerStore {
         let matchesSegment = selectedSegment == nil || customer.segment == selectedSegment
         let cleanQuery = query.trimmed
         guard !cleanQuery.isEmpty else { return matchesSegment }
-        let searchable = ([customer.name, customer.segment, customer.city ?? ""] + customer.tags)
+        let searchable = ([
+            customer.name,
+            customer.segment,
+            customer.city ?? "",
+            customer.state ?? "",
+            customer.street ?? "",
+            customer.neighborhood ?? "",
+            customer.deliveryRoute ?? ""
+        ] + customer.tags)
             .joined(separator: " ")
         return matchesSegment && searchable.localizedCaseInsensitiveContains(cleanQuery)
     }
@@ -132,4 +170,8 @@ final class CustomerStore {
 private extension String {
     var trimmed: String { trimmingCharacters(in: .whitespacesAndNewlines) }
     var nilIfEmpty: String? { isEmpty ? nil : self }
+}
+
+private extension Array {
+    var nilIfEmpty: Self? { isEmpty ? nil : self }
 }

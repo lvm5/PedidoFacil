@@ -10,6 +10,14 @@ struct CustomerEditorView: View {
     @State private var name: String
     @State private var segment: String
     @State private var city: String
+    @State private var state: String
+    @State private var postalCode: String
+    @State private var street: String
+    @State private var addressNumber: String
+    @State private var neighborhood: String
+    @State private var addressComplement: String
+    @State private var deliveryRoute: String
+    @State private var deliveryDays: Set<DeliveryWeekday>
     @State private var tagsText: String
     @State private var notes: String
 
@@ -20,6 +28,19 @@ struct CustomerEditorView: View {
         _name = State(initialValue: customer?.name ?? "")
         _segment = State(initialValue: customer?.segment ?? suggestedSegments.first ?? "Outros")
         _city = State(initialValue: customer?.city ?? "")
+        _state = State(initialValue: customer?.state ?? "SP")
+        _postalCode = State(initialValue: customer?.postalCode ?? "")
+        _street = State(initialValue: customer?.street ?? "")
+        _addressNumber = State(initialValue: customer?.addressNumber ?? "")
+        _neighborhood = State(initialValue: customer?.neighborhood ?? "")
+        _addressComplement = State(initialValue: customer?.addressComplement ?? "")
+        _deliveryRoute = State(initialValue: customer?.deliveryRoute ?? "")
+        _deliveryDays = State(
+            initialValue: Set(
+                customer?.deliveryDays
+                    ?? DeliveryRouteSuggestion.days(for: customer?.city, state: customer?.state)
+            )
+        )
         _tagsText = State(initialValue: customer?.tags.joined(separator: ", ") ?? "")
         _notes = State(initialValue: customer?.notes ?? "")
     }
@@ -30,8 +51,39 @@ struct CustomerEditorView: View {
                 Section("Cliente") {
                     TextField("Nome", text: $name)
                         .textContentType(.organizationName)
-                    TextField("Cidade (opcional)", text: $city)
+                }
+
+                Section("Endereço") {
+                    TextField("Rua ou avenida", text: $street)
+                        .textContentType(.streetAddressLine1)
+                    HStack {
+                        TextField("Número", text: $addressNumber)
+                        TextField("Complemento", text: $addressComplement)
+                    }
+                    TextField("Bairro", text: $neighborhood)
+                        .textContentType(.sublocality)
+                    HStack {
+                        TextField("Cidade", text: $city)
                         .textContentType(.addressCity)
+                        TextField("UF", text: $state)
+                            .textInputAutocapitalization(.characters)
+                            .frame(maxWidth: 72)
+                    }
+                    TextField("CEP", text: $postalCode)
+                        .textContentType(.postalCode)
+                        .keyboardType(.numbersAndPunctuation)
+                }
+
+                Section("Entregas") {
+                    TextField("Nome da rota (opcional)", text: $deliveryRoute)
+                    ForEach(DeliveryWeekday.allCases, id: \.self) { day in
+                        Toggle(day.shortName, isOn: dayBinding(day))
+                    }
+                    if !suggestedDeliveryDays.isEmpty {
+                        Button("Usar dias sugeridos para \(city)") {
+                            deliveryDays = Set(suggestedDeliveryDays)
+                        }
+                    }
                 }
 
                 Section("Segmento") {
@@ -56,6 +108,8 @@ struct CustomerEditorView: View {
             }
             .navigationTitle(customer == nil ? "Novo cliente" : "Editar cliente")
             .navigationBarTitleDisplayMode(.inline)
+            .onChange(of: city) { _, _ in applySuggestionWhenEmpty() }
+            .onChange(of: state) { _, _ in applySuggestionWhenEmpty() }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancelar") { dismiss() }
@@ -82,10 +136,36 @@ struct CustomerEditorView: View {
             segment: segment,
             tags: tags,
             city: city,
+            state: state,
+            postalCode: postalCode,
+            street: street,
+            addressNumber: addressNumber,
+            neighborhood: neighborhood,
+            addressComplement: addressComplement,
+            deliveryRoute: deliveryRoute,
+            deliveryDays: deliveryDays.sorted(),
             notes: notes
         ) != nil {
             dismiss()
         }
+    }
+
+    private var suggestedDeliveryDays: [DeliveryWeekday] {
+        DeliveryRouteSuggestion.days(for: city, state: state)
+    }
+
+    private func dayBinding(_ day: DeliveryWeekday) -> Binding<Bool> {
+        Binding(
+            get: { deliveryDays.contains(day) },
+            set: { enabled in
+                if enabled { deliveryDays.insert(day) } else { deliveryDays.remove(day) }
+            }
+        )
+    }
+
+    private func applySuggestionWhenEmpty() {
+        guard deliveryDays.isEmpty else { return }
+        deliveryDays = Set(suggestedDeliveryDays)
     }
 }
 

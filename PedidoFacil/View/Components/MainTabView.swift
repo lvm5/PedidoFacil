@@ -13,12 +13,14 @@ struct MainTabView: View {
     @EnvironmentObject var viewModel: OrderViewModel
     @EnvironmentObject var productModel: ProductModel
     @State private var priceListViewModel = PriceListImportViewModel()
+    @State private var customerStore = CustomerStore()
     
     var body: some View {
         TabView {
             DailySalesView(
                 productModel: productModel,
-                priceListViewModel: priceListViewModel
+                priceListViewModel: priceListViewModel,
+                customerStore: customerStore
             )
                 .tabItem {
                     Label("Início", systemImage: "house")
@@ -36,7 +38,7 @@ struct MainTabView: View {
                     Label("Pedidos", systemImage: "doc.plaintext")
                 }
 
-            CustomerListView(store: CustomerStore())
+            CustomerListView(store: customerStore)
                 .tabItem {
                     Label("Clientes", systemImage: "person.2")
                 }
