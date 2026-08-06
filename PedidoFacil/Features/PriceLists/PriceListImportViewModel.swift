@@ -141,7 +141,7 @@ final class PriceListImportViewModel {
         currentDraft.items.removeAll { $0.needsReview }
         currentDraft.status = .reviewed
         currentDraft.updatedAt = Date()
-        var nextLists = savedLists
+        var nextLists = savedLists.filter { $0.id != currentDraft.id }
         nextLists.append(currentDraft)
 
         do {
@@ -150,7 +150,8 @@ final class PriceListImportViewModel {
             let summary = try productModel.publish(currentDraft)
             currentDraft.status = .active
             currentDraft.updatedAt = Date()
-            savedLists[savedLists.count - 1] = currentDraft
+            savedLists.removeAll { $0.id == currentDraft.id }
+            savedLists.append(currentDraft)
             try store.save(savedLists)
             draft = nil
             sourceText = ""

@@ -1,147 +1,53 @@
-# 📦 PedidoFácil – App de Gestão de Pedidos e Compras
+# PedidoFácil
 
-Aplicativo iOS desenvolvido com SwiftUI para **gestão simples de pedidos, cálculo de lucro e geração de lista de compras**, com visual moderno e usabilidade prática.  
-Ideal para pequenos negócios que vendem produtos por peso e precisam controlar compras por demanda de clientes.
+Aplicativo iOS publicado para transformar tabelas de fornecedores e ofertas em produtos revisáveis, pedidos e comunicação comercial. O app atende operações diferentes: horários, segmentos, rotas, dias de entrega e assinatura são configuráveis, sem restringir o produto a uma empresa ou cidade.
 
----
+## Fluxo principal
 
-## 🧑‍💻 Desenvolvedor
-- **Nome:** Leandro Vansan de Morais    
-- **Data de criação:** Julho de 2025  
+1. Importe um PDF ou texto e revise cada item.
+2. Salve e publique a lista; os produtos passam a existir no catálogo.
+3. Selecione cliente e itens, revise valores e salve o pedido.
+4. Acompanhe o pedido, desconto, rota e entrega no histórico.
 
----
+O preço informado pela tabela é o preço de venda. Quando não existe custo de compra conhecido, o app copia provisoriamente o preço de venda e identifica o custo como pendente de confirmação.
 
-## 🎯 Objetivo do Projeto
+## Áreas do app
 
-- Cadastrar produtos com preço de compra e venda, embalagem e peso.
-- Registrar pedidos por cliente com cálculo automático do valor e do lucro.
-- Gerar automaticamente uma **lista de compras** com base na demanda dos pedidos.
-- Criar e exibir um **cupom personalizado** com o resumo do pedido do cliente.
-- Copiar esse cupom para envio via WhatsApp, SMS ou qualquer outro meio.
+- **Início:** central do dia, perfil operacional, campanhas, pedido rápido e acesso ao pedido simples legado.
+- **Listas:** importação de PDF/texto, revisão, salvamento e publicação no catálogo.
+- **Pedidos:** histórico comercial, estados do pedido, desconto e revisão de pedido recusado.
+- **Clientes:** cadastro, endereço, cidade, rota e dias de entrega.
+- **Produtos:** catálogo persistido e edição de preços/embalagens.
 
----
+## Arquitetura
 
-## 🛠 Funcionalidades
+- SwiftUI, iOS 18.2 ou posterior.
+- Estado raiz compartilhado em `MainTabView`.
+- Persistência local JSON versionada, gravação atômica e um backup rotativo.
+- Compatibilidade de leitura com os JSONs legados.
+- Dois domínios de pedido coexistem durante a migração: `SalesOrder` é o fluxo principal; `ClientOrder` permanece acessível pelo “Pedido simples”.
 
-### ✅ Cadastro de Produtos
-- Nome, marca, categoria (aves, carnes, laticínios, etc.)
-- Preço de compra, preço de venda
-- Tipo de embalagem (unidade, caixa, pacote)
-- Peso por embalagem
+Decisões e contratos:
 
-### ✅ Registro de Pedidos
-- Seleção do produto e inserção da quantidade em kg
-- Cálculo automático do valor total do item e lucro
-- Lista de pedidos exibida com total por item
+- [ADR 001 — persistência local](docs/architecture/ADR-001-persistencia-local-json.md)
+- [ADR 002 — coexistência legado/novo](docs/architecture/ADR-002-coexistencia-dos-pedidos.md)
+- [ADR 003 — navegação e estado](docs/architecture/ADR-003-navegacao-e-estado-raiz.md)
+- [Contrato de persistência](docs/contracts/persistencia.md)
+- [Contrato de domínio e interface](docs/contracts/dominio-e-interface.md)
+- [Inventário E2E](docs/audits/e2e-total-2026-08-06.md)
 
-### ✅ Cupom de Pedido
-- Insere nome do cliente
-- Gera cupom em texto com:
-  - Lista dos produtos
-  - Total a pagar
-  - Lucro estimado
-- Copia automaticamente para área de transferência
+## Desenvolvimento e validação
 
-### ✅ Lista de Compras
-- Soma a quantidade de cada produto de todos os pedidos
-- Verifica se fecha uma embalagem completa
-- Mostra produtos que precisam ser comprados
-- Lista separada de itens em **espera** (quantidade insuficiente para comprar)
+Abra `PedidoFacil.xcodeproj`, selecione o scheme `PedidoFacil` e um Simulator compatível. O projeto inclui testes XCTest para modelos, stores, parsing, campanhas, rotas, importação e pedidos.
 
----
+Cada alteração deve ocorrer em branch específica, atualizar `MAJOR.MINOR.PATCH` conforme SemVer e preservar um caminho reversível antes do merge na `main`. Build, testes, análise estática, execução no Simulator, dispositivo físico e disponibilidade na App Store são evidências distintas.
 
-## 🧑‍🏫 Conceitos e Tecnologias Aplicadas
+## Privacidade
 
-| Conceito Swift/SwiftUI         | Aplicação prática                                                                 |
-|-------------------------------|-------------------------------------------------------------------------------------|
-| `@State`, `@Binding`          | Controle de variáveis mutáveis como produtos e pedidos                             |
-| `@Environment(\.colorScheme)` | Detecta modo escuro ou claro                                                       |
-| `Picker`, `List`, `Menu`      | Criação de interfaces interativas e dinâmicas                                      |
-| `Identifiable`, `Hashable`    | Permite uso de structs em ForEach e Picker                                         |
-| `guard let`, `Double(...)`    | Conversão segura de String para Double em inputs                                   |
-| `Computed Properties`         | `totalPrice`, `totalProfit` calculados automaticamente                            |
-| `Clipboard (UIPasteboard)`    | Copia do texto do cupom para envio por qualquer canal                              |
-| `Text` com interpolação       | Exibição formatada de mensagens e valores                                          |
-| `Codable`                     | Permite salvar ou exportar os dados se quiser expandir o app futuramente          |
-| `FileManager` (futuramente)   | Pode ser usado para persistir histórico de pedidos                                 |
+Os dados operacionais ficam no contêiner local do app. Compartilhamento só ocorre por ação explícita do usuário através das superfícies do sistema.
 
----
+## Licença
 
-## 📱 Design
+Creative Commons Atribuição-NãoComercial-CompartilhaIgual 4.0 Internacional (CC BY-NC-SA 4.0). Consulte o [texto legal](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
 
-- Interface 100% em **SwiftUI**
-- Visual moderno com:
-  - `LinearGradient`
-  - `glassEffect` (iOS 17+)
-  - `VStack`, `ZStack`, `Spacer` para layout responsivo
-
----
-
-## 🧪 Lógica de negócio aplicada
-
-- Pedido por cliente gera uma `ClientOrder` com `OrderItem`
-- Total e lucro são somados automaticamente
-- A lógica de lista de compras usa:
-  - `Dictionary` para agrupar
-  - `reduce` para somar
-  - Arredondamento para baixo (comprar apenas embalagens completas)
-  - "sobra" vai para lista de espera
-
----
-
-## 📤 Como funciona o envio do cupom?
-
-1. O usuário registra os pedidos
-2. Ao finalizar, insere o nome do cliente
-3. O app gera um **cupom em texto**
-4. O texto é copiado automaticamente para a **área de transferência**
-5. O usuário pode **colar onde quiser**: WhatsApp, Instagram, SMS, E-mail...
-
----
-
-## 📚 Documentação Oficial Referenciada
-
-- [SwiftUI – Picker](https://developer.apple.com/documentation/swiftui/picker)
-- [SwiftUI – List](https://developer.apple.com/documentation/swiftui/list)
-- [SwiftUI – State](https://developer.apple.com/documentation/swiftui/state)
-- [Swift – Hashable](https://developer.apple.com/documentation/swift/hashable)
-- [Swift – Identifiable](https://developer.apple.com/documentation/swift/identifiable)
-- [UIPasteboard](https://developer.apple.com/documentation/uikit/uipasteboard)
-- [Text Interpolation](https://developer.apple.com/documentation/swiftui/text)
-
----
-
-## 🚀 Evoluções Futuras
-
-- Exportar pedidos em PDF ou .txt
-- Histórico de pedidos por cliente
-- Persistência de dados com `FileManager` ou `UserDefaults`
-- Compartilhamento direto com `ShareLink`
-
----
-
-## ✅ Status:  
-📦 **Projeto em desenvolvimento — versão MVP funcional pronta!**
-
----
-
-## 📄 Licença
-
-Este projeto está licenciado sob a [Creative Commons Atribuição-NãoComercial-CompartilhaIgual 4.0 Internacional (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
-
-Você é livre para:
-
-- 📤 **Compartilhar** — copiar e redistribuir o material em qualquer meio ou formato  
-- 🧪 **Adaptar** — remixar, transformar e criar a partir do material
-
-**Sob os seguintes termos:**
-
-- 📝 **Atribuição** — Você deve dar o devido crédito, fornecer um link para a licença e indicar se alterações foram feitas.  
-- 🚫 **Não Comercial** — Você não pode usar o material para fins comerciais.  
-- 🔁 **Compartilha Igual** — Se você modificar ou criar algo a partir deste material, deve distribuir suas contribuições sob a mesma licença.  
-- ❗ **Sem restrições adicionais** — Não aplique termos legais ou medidas tecnológicas que restrinjam legalmente outros de fazer algo permitido pela licença.
-
-> Esta é uma tradução informal da licença. Para os termos legais completos, consulte o [texto oficial aqui](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).  
-> Você não precisa cumprir a licença para elementos do material em domínio público ou onde o uso é permitido por exceção legal.
-
-**Copyright (c) 2025 Leandro Vansan de Morais**
+Copyright © 2025–2026 Leandro Vansan de Morais.

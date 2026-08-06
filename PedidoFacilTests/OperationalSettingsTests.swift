@@ -57,4 +57,12 @@ final class OperationalSettingsTests: XCTestCase {
         XCTAssertEqual(profile.submissionStartTime, LocalTime(hour: 8, minute: 0))
         XCTAssertEqual(profile.submissionDeadline, LocalTime(hour: 17, minute: 45))
     }
+
+    func testInvalidPersistedTimeIsRejectedInsteadOfEnteringDomain() {
+        let json = #"{"hour": 25, "minute": 0}"#
+
+        XCTAssertThrowsError(
+            try JSONDecoder().decode(LocalTime.self, from: Data(json.utf8))
+        )
+    }
 }

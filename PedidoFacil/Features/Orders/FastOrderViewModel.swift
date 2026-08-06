@@ -244,6 +244,24 @@ final class FastOrderViewModel {
         transition(to: .cancelled, success: "Pedido cancelado.")
     }
 
+    func reviseRefusedOrder(now: Date = Date()) {
+        guard order.status == .awaitingDiscountApproval,
+              order.discountRequest?.status == .refused else { return }
+        let refusedOrderID = order.id
+        do {
+            try order.transition(
+                to: .cancelled,
+                at: now,
+                note: "Substituído por novo rascunho para revisão"
+            )
+            guard persistOrder() else { return }
+            duplicateOrder(id: refusedOrderID, now: now)
+            successMessage = "Novo rascunho criado para revisar o pedido recusado."
+        } catch {
+            errorMessage = "Não foi possível preparar a revisão do pedido."
+        }
+    }
+
     func startNewOrder() {
         order = SalesOrder(customerName: "")
         customerName = ""
@@ -294,6 +312,23 @@ final class FastOrderViewModel {
         persistOrder()
     }
 
+    func openOrder(id: UUID) {
+        guard let selected = savedOrders.first(where: { $0.id == id }) else {
+            errorMessage = "Pedido não encontrado."
+            return
+        }
+        order = selected
+        customerName = selected.customerName
+        selectedCustomerID = selected.customerID
+        selectedProductID = nil
+        quantityText = ""
+        negotiatedPriceText = ""
+        itemNote = ""
+        discountReason = selected.discountRequest?.reason ?? ""
+        errorMessage = nil
+        successMessage = nil
+    }
+
     private var effectiveNegotiatedPriceText: String {
         negotiatedPriceText.nilIfBlank
             ?? selectedProduct.map { Self.decimalString(from: $0.sellingPrice) }
@@ -311,19 +346,25 @@ final class FastOrderViewModel {
         }
     }
 
-    private func persistOrder() {
-        if let index = savedOrders.firstIndex(where: { $0.id == order.id }) {
-            savedOrders[index] = order
+    @discardableResult
+    private func persistOrder() -> Bool {
+        var nextOrders = savedOrders
+        if let index = nextOrders.firstIndex(where: { $0.id == order.id }) {
+            nextOrders[index] = order
         } else {
-            savedOrders.append(order)
+            nextOrders.append(order)
         }
 
         do {
-            try store.save(savedOrders)
+            try store.save(nextOrders)
+            savedOrders = nextOrders
+            errorMessage = nil
             logger.debug("Sales order persisted. Status: \(self.order.status.rawValue, privacy: .public)")
+            return true
         } catch {
             errorMessage = "Não foi possível salvar o pedido. Tente novamente."
             logger.error("Failed to persist sales order: \(error.localizedDescription, privacy: .public)")
+            return false
         }
     }
 

@@ -18,9 +18,7 @@ struct HomeView: View {
             VStack(spacing: 0) {
                 HeaderView(
                     title: "Pedido Fácil",
-                    primaryColor: .accentColor,
-                    onClearAll: viewModel.clearAllOrders,
-                    isClearDisabled: viewModel.orders.isEmpty
+                    primaryColor: .accentColor
                 )
                 ScrollView {
                     LazyVStack(spacing: 20) {
@@ -50,6 +48,13 @@ struct HomeView: View {
                             },
                             onAddOrder: viewModel.addOrder,
                         )
+
+                        if let errorMessage = viewModel.errorMessage {
+                            Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
+                                .font(.footnote)
+                                .foregroundStyle(.red)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
                         
                         // Seção de pedidos
                         if !viewModel.orders.isEmpty {

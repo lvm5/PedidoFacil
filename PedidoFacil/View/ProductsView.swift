@@ -20,7 +20,7 @@ struct ProductsView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
 //                        HeaderView(title: "Produtos",
 //                                   primaryColor: .primary,
 //                                   onClearAll: {},
@@ -28,15 +28,23 @@ struct ProductsView: View {
 //                                   )
             VStack {
                 List {
-                    ForEach(filteredProducts.sorted(by: { $0.name < $1.name })) { product in
-                        ProductRowView(product: product, secondaryColor: Color.blue)
-                            .onTapGesture {
+                    ForEach(filteredProducts.sorted(by: { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending })) { product in
+                        Button {
                                 selectedProduct = product
-                            }
+                        } label: {
+                            ProductRowView(product: product)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
                 .modifier(CompatListSectionMargins())
                 .searchable(text: $searchText, prompt: "Buscar produtos...")
+                .overlay {
+                    if filteredProducts.isEmpty {
+                        ContentUnavailableView.search(text: searchText)
+                    }
+                }
             }
             .navigationTitle("Produtos")
             .toolbar {
@@ -53,6 +61,16 @@ struct ProductsView: View {
             }
             .sheet(item: $selectedProduct) { product in
                 ProductEditView(product: product)
+            }
+            .safeAreaInset(edge: .bottom) {
+                if let error = productModel.persistenceErrorMessage {
+                    Label(error, systemImage: "exclamationmark.triangle.fill")
+                        .font(.footnote)
+                        .foregroundStyle(.orange)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(.bar)
+                }
             }
         }
     }

@@ -16,9 +16,7 @@ struct PurchaseSuggestionsView: View {
         VStack() {
             HeaderView(
                 title: "Total dos pedidos",
-                primaryColor: primaryColor,
-                onClearAll: viewModel.clearAllOrders,
-                isClearDisabled: viewModel.orders.isEmpty
+                primaryColor: primaryColor
             )
             // Showing total price formatted as local currency below the header
             Text(viewModel.totalPriceFromAllClientOrders.asCurrency()) // Local currency formatting

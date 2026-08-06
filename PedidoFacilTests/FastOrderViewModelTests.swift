@@ -73,6 +73,29 @@ final class FastOrderViewModelTests: XCTestCase {
         )
     }
 
+    func testRefusedAdjustmentCanBeRevisedAsNewDraft() throws {
+        let context = try makeContext()
+        defer { try? FileManager.default.removeItem(at: context.directory) }
+        let product = makeProduct()
+        let model = FastOrderViewModel(products: [product], store: context.store)
+        model.updateCustomerName("Restaurante")
+        model.selectProduct(product.id)
+        model.quantityText = "1"
+        model.negotiatedPriceText = "35,00"
+        model.addItem()
+        model.discountReason = "Negociação"
+        model.confirmOrder()
+        let refusedOrderID = model.order.id
+        model.resolveDiscount(as: .refused)
+
+        model.reviseRefusedOrder(now: Date(timeIntervalSince1970: 500))
+
+        XCTAssertEqual(model.order.status, .draft)
+        XCTAssertNotEqual(model.order.id, refusedOrderID)
+        XCTAssertEqual(model.order.items.count, 1)
+        XCTAssertEqual(model.savedOrders.first(where: { $0.id == refusedOrderID })?.status, .cancelled)
+    }
+
     private func makeContext() throws -> (
         directory: URL,
         store: JSONFileStore<[SalesOrder]>

@@ -20,9 +20,9 @@ struct ActionButtonsView: View {
         VStack(spacing: 12) {
             Button(action: onCalculate) {
                 HStack {
-                    Image(systemName: "plus.square.fill.on.square.fill")
+                    Image(systemName: "equal.circle.fill")
                         .font(.title3)
-                    Text("Adicionar item")
+                    Text("Calcular total")
                         .font(.headline)
                         .fontWeight(.semibold)
                 }

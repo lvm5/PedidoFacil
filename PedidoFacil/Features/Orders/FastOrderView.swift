@@ -212,6 +212,11 @@ struct FastOrderView: View {
                         viewModel.resolveDiscount(as: .refused)
                     }
                 }
+                if request.status == .refused {
+                    Button("Revisar em novo rascunho") {
+                        viewModel.reviseRefusedOrder()
+                    }
+                }
             }
         } header: {
             Text("Ajuste de preço")

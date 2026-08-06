@@ -1,5 +1,7 @@
 # Relatório de entrega — fluxo comercial Pedido Fácil
 
+> Registro histórico. Para o estado atual, consulte [Relatório de qualidade 1.5.0](pedido-facil-1.5.0-quality-report.md).
+
 Data: 2026-08-05
 Branch: `codex/pedido-facil-sales-flow-80-20`
 Base: `7e5d9f2` (`main`)

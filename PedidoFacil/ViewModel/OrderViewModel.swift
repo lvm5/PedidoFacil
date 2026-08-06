@@ -31,6 +31,7 @@ class OrderViewModel: ObservableObject {
     @Published var clientOrders: [ClientOrder] = []
     @Published var showClientNameField: Bool = false
     @Published var receiptText: String = ""
+    @Published private(set) var errorMessage: String?
 
     private let clientOrdersStore: JSONFileStore<[ClientOrder]>
     private let draftStore: JSONFileStore<SalesOrderDraft>
@@ -55,10 +56,15 @@ class OrderViewModel: ObservableObject {
    
     /// CALC SOLICITAR ITENS
     func calculate() {
-        guard let kg = Double(quantityKg) else {
-            print("Quantidade inválida")
+        guard selectedProduct.id != Self.placeholderProduct.id else {
+            errorMessage = "Selecione um produto."
             return
         }
+        guard let kg = parsedQuantity, kg > 0 else {
+            errorMessage = "Informe uma quantidade maior que zero."
+            return
+        }
+        errorMessage = nil
         totalPrice = kg * selectedProduct.sellingPrice
         totalProfit = kg * (selectedProduct.sellingPrice - selectedProduct.purchasePrice)
         showingCalculation = true
@@ -66,10 +72,15 @@ class OrderViewModel: ObservableObject {
     
     /// + ORDER
     func addOrder() {
-        guard let quantity = Double(quantityKg), quantity > 0 else {
-            print("❌ Quantidade inválida")
+        guard selectedProduct.id != Self.placeholderProduct.id else {
+            errorMessage = "Selecione um produto."
             return
         }
+        guard let quantity = parsedQuantity, quantity > 0 else {
+            errorMessage = "Informe uma quantidade maior que zero."
+            return
+        }
+        errorMessage = nil
         let newOrder = OrderItem(product: selectedProduct, quantity: quantity)
         orders.append(newOrder)
         generatePurchaseSuggestions()
@@ -155,20 +166,30 @@ class OrderViewModel: ObservableObject {
     /// SAVE CLIENT ORDER
     func saveClientOrder() {
         // 1. Verificar se nome e pedidos são válidos
-        guard !clientName.isEmpty else {
-            print("Por favor, insira o nome do cliente.")
+        let normalizedClientName = clientName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalizedClientName.isEmpty else {
+            errorMessage = "Informe o nome do cliente."
             return
         }
         guard !orders.isEmpty else {
-            print("O pedido está vazio.")
+            errorMessage = "Adicione pelo menos um item ao pedido."
             return
         }
         
         // 2. Criar novo pedido do cliente
-        let newOrder = ClientOrder(clientName: clientName, date: Date(), items: orders)
+        let newOrder = ClientOrder(clientName: normalizedClientName, date: Date(), items: orders)
         
         // 3. Adicionar na lista geral de pedidos
-        clientOrders.append(newOrder)
+        let nextClientOrders = clientOrders + [newOrder]
+        do {
+            try clientOrdersStore.save(nextClientOrders)
+        } catch {
+            errorMessage = "Nao foi possivel salvar o pedido. Tente novamente."
+            logger.error("Failed to save orders: \(error.localizedDescription, privacy: .public)")
+            return
+        }
+        clientOrders = nextClientOrders
+        errorMessage = nil
         
         // 4. Limpar o pedido atual para próximo
         orders.removeAll()
@@ -177,8 +198,6 @@ class OrderViewModel: ObservableObject {
         // 5. Atualizar as listas de compra e pendentes com todos os pedidos
         generatePurchaseSuggestionsFromAllOrders()
         
-        print("Pedido salvo com sucesso!")
-        saveClientOrdersToDisk()
         selectedProduct = Self.placeholderProduct
         saveDraftImmediately()
     }
@@ -260,10 +279,18 @@ class OrderViewModel: ObservableObject {
         return text
     }
     
-    func removeClientOrder(at offsets: IndexSet) {
-        clientOrders.remove(atOffsets: offsets)
+    func removeClientOrders(ids: Set<UUID>) {
+        let nextClientOrders = clientOrders.filter { !ids.contains($0.id) }
+        do {
+            try clientOrdersStore.save(nextClientOrders)
+        } catch {
+            errorMessage = "Nao foi possivel excluir o pedido. Tente novamente."
+            logger.error("Failed to save orders: \(error.localizedDescription, privacy: .public)")
+            return
+        }
+        clientOrders = nextClientOrders
+        errorMessage = nil
         generatePurchaseSuggestionsFromAllOrders()
-        saveClientOrdersToDisk()
     }
     
     /// CALL TEXT (SENT TO CLIENT)
@@ -294,6 +321,9 @@ class OrderViewModel: ObservableObject {
 // MARK: - Persistência com FileManager + JSON
 
 private extension OrderViewModel {
+    var parsedQuantity: Double? {
+        Double(quantityKg.replacingOccurrences(of: ",", with: "."))
+    }
     static let placeholderProduct = Product(
         name: "Selecione um produto",
         purchasePrice: 0,

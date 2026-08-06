@@ -12,19 +12,15 @@ struct DailySalesView: View {
     init(
         productModel: ProductModel,
         priceListViewModel: PriceListImportViewModel,
-        customerStore: CustomerStore
+        customerStore: CustomerStore,
+        fastOrderViewModel: FastOrderViewModel
     ) {
         self.productModel = productModel
         _settings = State(initialValue: OperationalSettings())
         _customerStore = State(initialValue: customerStore)
         _campaignStore = State(initialValue: CampaignStore())
         _priceListViewModel = State(initialValue: priceListViewModel)
-        _fastOrderViewModel = State(
-            initialValue: FastOrderViewModel(
-                products: productModel.products,
-                customers: customerStore.activeCustomers
-            )
-        )
+        _fastOrderViewModel = State(initialValue: fastOrderViewModel)
     }
 
     var body: some View {
@@ -54,7 +50,11 @@ struct DailySalesView: View {
     private var historySection: some View {
         Section {
             NavigationLink {
-                SalesOrderHistoryView(viewModel: fastOrderViewModel)
+                SalesOrderHistoryView(
+                    viewModel: fastOrderViewModel,
+                    customerProvider: { customerStore.activeCustomers },
+                    productProvider: { productModel.products }
+                )
             } label: {
                 Label("Histórico comercial", systemImage: "clock.arrow.circlepath")
             }
@@ -127,7 +127,11 @@ struct DailySalesView: View {
             }
 
             NavigationLink {
-                SalesOrderHistoryView(viewModel: fastOrderViewModel)
+                SalesOrderHistoryView(
+                    viewModel: fastOrderViewModel,
+                    customerProvider: { customerStore.activeCustomers },
+                    productProvider: { productModel.products }
+                )
             } label: {
                 Label("Resolver pendências", systemImage: "checklist")
             }
@@ -251,7 +255,8 @@ private extension String {
     DailySalesView(
         productModel: productModel,
         priceListViewModel: PriceListImportViewModel(),
-        customerStore: CustomerStore()
+        customerStore: CustomerStore(),
+        fastOrderViewModel: FastOrderViewModel(products: productModel.products)
     )
         .environmentObject(productModel)
         .environmentObject(OrderViewModel())

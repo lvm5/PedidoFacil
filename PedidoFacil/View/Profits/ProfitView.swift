@@ -22,9 +22,7 @@ struct ProfitView: View {
                 VStack(spacing: 0) {
                     HeaderView(
                         title: "Resumo Financeiro",
-                        primaryColor: primaryColor,
-                        onClearAll: viewModel.clearAllOrders,
-                        isClearDisabled: viewModel.orders.isEmpty
+                        primaryColor: primaryColor
                     )
 
                     ScrollView {
@@ -46,4 +44,3 @@ struct ProfitView: View {
         Text("Preview not available")
     }
 }
-

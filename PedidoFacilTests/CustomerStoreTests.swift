@@ -118,6 +118,24 @@ final class CustomerStoreTests: XCTestCase {
         XCTAssertNil(customer.deliveryDays)
     }
 
+    func testFailedSaveDoesNotExposeUnpersistedCustomer() {
+        let store = CustomerStore(
+            store: JSONFileStore(fileURL: URL(fileURLWithPath: "/dev/null/customers.json"))
+        )
+
+        let customer = store.save(
+            name: "Não persistido",
+            segment: "Outros",
+            tags: [],
+            city: nil,
+            notes: nil
+        )
+
+        XCTAssertNil(customer)
+        XCTAssertTrue(store.customers.isEmpty)
+        XCTAssertNotNil(store.errorMessage)
+    }
+
     private func temporaryStore() -> JSONFileStore<[Customer]> {
         JSONFileStore(
             fileURL: FileManager.default.temporaryDirectory

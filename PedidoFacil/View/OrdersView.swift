@@ -22,26 +22,31 @@ struct OrdersView: View {
             VStack {
                 HeaderView(
                     title: "Lista de pedidos",
-                    primaryColor: primaryColor,
-                    onClearAll: viewModel.clearAllOrders,
-                    isClearDisabled: viewModel.orders.isEmpty
+                    primaryColor: primaryColor
                 )
                 
                 NavigationStack {
                     List {
-                        ForEach(viewModel.clientOrders.sorted(by: { $0.date > $1.date })) { order in
+                        ForEach(sortedOrders) { order in
                             NavigationLink(destination: OrderDetailView(order: order)) {
                                 OrderRowViewChild(order: order)
                             }
                         }
                         .onDelete { indexSet in
-                            viewModel.removeClientOrder(at: indexSet)
+                            let ids = Set(indexSet.compactMap { index in
+                                sortedOrders.indices.contains(index) ? sortedOrders[index].id : nil
+                            })
+                            viewModel.removeClientOrders(ids: ids)
                         }
                     }
                     .modifier(CompatListSectionMargins())
                 }
             }
         }
+    }
+
+    private var sortedOrders: [ClientOrder] {
+        viewModel.clientOrders.sorted { $0.date > $1.date }
     }
 }
 
