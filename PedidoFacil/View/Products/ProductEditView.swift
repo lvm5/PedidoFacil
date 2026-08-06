@@ -152,6 +152,7 @@ struct ProductEditView: View {
             updatedProduct.unitsPerPackage = unitsPerPackageValue
             updatedProduct.category = category
             updatedProduct.brand = brand.isEmpty ? nil : brand
+            updatedProduct.purchasePriceIsProvisional = false
             
             productModel.update(updatedProduct)
         } else {
@@ -163,7 +164,8 @@ struct ProductEditView: View {
                 packageSize: packageSize,
                 unitsPerPackage: unitsPerPackageValue,
                 category: category,
-                brand: brand.isEmpty ? nil : brand
+                brand: brand.isEmpty ? nil : brand,
+                purchasePriceIsProvisional: false
             )
             
             productModel.add(newProduct)

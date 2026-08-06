@@ -11,7 +11,7 @@ final class PriceListImportViewModel {
     private(set) var errorMessage: String?
     private(set) var successMessage: String?
 
-    private let parser: PriceListParser
+    private var parser: PriceListParser
     private let pdfExtractor: PDFPriceListExtractor
     private let store: JSONFileStore<[DailyPriceList]>
     private let logger = Logger(
@@ -40,7 +40,11 @@ final class PriceListImportViewModel {
 
     var canSave: Bool {
         guard let draft, !draft.items.isEmpty else { return false }
-        return draft.itemsNeedingReview.isEmpty
+        return draft.items.contains { !$0.needsReview }
+    }
+
+    func updateCatalogReference(brands: [String], categories: [String]) {
+        parser = PriceListParser(knownBrands: brands, knownCategories: categories)
     }
 
     func reviewSource() {
@@ -123,31 +127,41 @@ final class PriceListImportViewModel {
         draft = currentDraft
     }
 
-    func saveReviewedList() {
+    func saveReviewedList(publishingTo productModel: ProductModel) {
         guard var currentDraft = draft else { return }
         revalidateAllItems(in: &currentDraft)
         draft = currentDraft
 
         guard canSave else {
-            errorMessage = "Resolva os itens sinalizados antes de salvar."
+            errorMessage = "Nenhum produto válido está pronto para publicação."
             return
         }
 
+        let skippedCount = currentDraft.itemsNeedingReview.count
+        currentDraft.items.removeAll { $0.needsReview }
         currentDraft.status = .reviewed
         currentDraft.updatedAt = Date()
-        savedLists.append(currentDraft)
+        var nextLists = savedLists
+        nextLists.append(currentDraft)
 
         do {
+            try store.save(nextLists)
+            savedLists = nextLists
+            let summary = try productModel.publish(currentDraft)
+            currentDraft.status = .active
+            currentDraft.updatedAt = Date()
+            savedLists[savedLists.count - 1] = currentDraft
             try store.save(savedLists)
             draft = nil
             sourceText = ""
             errorMessage = nil
-            successMessage = "Lista revisada e salva."
-            logger.info("Reviewed price list saved. Item count: \(currentDraft.items.count, privacy: .public)")
+            let skipped = skippedCount > 0 ? " \(skippedCount) pendente(s) não publicado(s)." : ""
+            successMessage = "Lista salva: \(summary.created) novo(s), \(summary.updated) atualizado(s).\(skipped)"
+            logger.info("Price list saved and published. Item count: \(currentDraft.items.count, privacy: .public)")
         } catch {
-            savedLists.removeLast()
-            errorMessage = "Não foi possível salvar a lista. Tente novamente."
-            logger.error("Failed to save price list: \(error.localizedDescription, privacy: .public)")
+            savedLists = (try? store.load()?.value) ?? savedLists
+            errorMessage = "Não foi possível concluir a publicação: \(error.localizedDescription)"
+            logger.error("Failed to save and publish price list: \(error.localizedDescription, privacy: .public)")
         }
     }
 

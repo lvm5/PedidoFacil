@@ -12,19 +12,20 @@ import SwiftUI
 struct MainTabView: View {
     @EnvironmentObject var viewModel: OrderViewModel
     @EnvironmentObject var productModel: ProductModel
+    @State private var priceListViewModel = PriceListImportViewModel()
     
     var body: some View {
         TabView {
-            DailySalesView(products: productModel.products)
+            DailySalesView(
+                productModel: productModel,
+                priceListViewModel: priceListViewModel
+            )
                 .tabItem {
                     Label("Início", systemImage: "house")
                 }
 
             PriceListImportView(
-                viewModel: PriceListImportViewModel(
-                    knownBrands: Array(Set(productModel.products.compactMap(\.brand))),
-                    knownCategories: Array(Set(productModel.products.map(\.category)))
-                )
+                viewModel: priceListViewModel
             )
             .tabItem {
                 Label("Listas", systemImage: "list.clipboard")
@@ -55,5 +56,18 @@ struct MainTabView: View {
                     Label("Lucros", systemImage: "chart.bar")
                 }
         }
+        .task(id: productReferenceKey) {
+            priceListViewModel.updateCatalogReference(
+                brands: Array(Set(productModel.products.compactMap(\.brand))),
+                categories: Array(Set(productModel.products.map(\.category)))
+            )
+        }
+    }
+
+    private var productReferenceKey: String {
+        productModel.products
+            .map { "\($0.id.uuidString)|\($0.brand ?? "")|\($0.category)" }
+            .sorted()
+            .joined(separator: ";")
     }
 }

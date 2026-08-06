@@ -8,6 +8,19 @@
 import Foundation
 import OSLog
 
+struct ProductPublicationSummary: Equatable {
+    let created: Int
+    let updated: Int
+}
+
+enum ProductPublicationError: LocalizedError {
+    case noValidItems
+
+    var errorDescription: String? {
+        "A lista não contém produtos válidos para publicação."
+    }
+}
+
 @MainActor
 class ProductModel: ObservableObject {
     @Published var products: [Product] = []
@@ -18,11 +31,14 @@ class ProductModel: ObservableObject {
         category: "ProductPersistence"
     )
 
-    init(store: JSONFileStore<[Product]>? = nil) {
+    init(
+        store: JSONFileStore<[Product]>? = nil,
+        loadSamplesWhenEmpty: Bool = true
+    ) {
         self.store = store ?? JSONFileStore(fileURL: Self.defaultProductsFileURL)
         loadProductsFromDisk()
         // Se não há produtos salvos, carrega produtos de exemplo
-        if products.isEmpty {
+        if products.isEmpty, loadSamplesWhenEmpty {
             loadSampleProducts()
         }
     }
@@ -43,6 +59,53 @@ class ProductModel: ObservableObject {
     func delete(_ product: Product) {
         products.removeAll { $0.id == product.id }
         saveProductsToDisk()
+    }
+
+    func publish(_ list: DailyPriceList) throws -> ProductPublicationSummary {
+        var nextProducts = products
+        var created = 0
+        var updated = 0
+
+        for item in list.items where !item.needsReview {
+            guard let decimalPrice = item.price else { continue }
+            let price = NSDecimalNumber(decimal: decimalPrice).doubleValue
+            let packageType = Self.packageType(from: item.unit)
+            let key = Self.catalogKey(name: item.name, brand: item.brand, packageSize: item.unit)
+
+            if let index = nextProducts.firstIndex(where: {
+                Self.catalogKey(name: $0.name, brand: $0.brand, packageSize: $0.packageSize) == key
+            }) {
+                nextProducts[index].sellingPrice = price
+                if nextProducts[index].purchasePriceIsProvisional == true {
+                    nextProducts[index].purchasePrice = price
+                }
+                if let category = item.category, !category.isEmpty {
+                    nextProducts[index].category = category
+                }
+                updated += 1
+            } else {
+                nextProducts.append(
+                    Product(
+                        name: item.name,
+                        purchasePrice: price,
+                        sellingPrice: price,
+                        packageType: packageType,
+                        packageSize: item.unit ?? "",
+                        unitsPerPackage: 1,
+                        category: item.category ?? "Sem categoria",
+                        brand: item.brand,
+                        purchasePriceIsProvisional: true
+                    )
+                )
+                created += 1
+            }
+        }
+
+        guard created + updated > 0 else { throw ProductPublicationError.noValidItems }
+        try store.save(nextProducts)
+        products = nextProducts
+        logger.info("Price list published. Created: \(created, privacy: .public), updated: \(updated, privacy: .public)")
+        return ProductPublicationSummary(created: created, updated: updated)
     }
     
     // MARK: - Persistência JSON compatível com versões publicadas
@@ -76,6 +139,25 @@ class ProductModel: ObservableObject {
         } catch {
             logger.error("Failed to load products: \(error.localizedDescription, privacy: .public)")
         }
+    }
+
+    private static func catalogKey(name: String, brand: String?, packageSize: String?) -> String {
+        [name, brand ?? "", packageSize ?? ""]
+            .joined(separator: "|")
+            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+            .lowercased()
+            .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private static func packageType(from unit: String?) -> String {
+        let normalized = unit?.lowercased() ?? ""
+        if normalized.contains("kg") || normalized.hasSuffix("g") {
+            return "Kg"
+        }
+        if normalized.contains("cx") { return "Caixa" }
+        if normalized.contains("pct") { return "Pacote" }
+        return "Unidade"
     }
     
     private func loadSampleProducts() {

@@ -17,9 +17,20 @@ struct Product: Identifiable, Hashable, Codable {
     var unitsPerPackage: Int?
     var category: String
     var brand: String?
+    var purchasePriceIsProvisional: Bool?
     var calculatedUnits: Int? = nil
     
-    init(name: String, purchasePrice: Double, sellingPrice: Double, packageType: String, packageSize: String, unitsPerPackage: Int, category: String, brand: String? = nil) {
+    init(
+        name: String,
+        purchasePrice: Double,
+        sellingPrice: Double,
+        packageType: String,
+        packageSize: String,
+        unitsPerPackage: Int,
+        category: String,
+        brand: String? = nil,
+        purchasePriceIsProvisional: Bool? = nil
+    ) {
         self.id = UUID()
         self.name = name
         self.purchasePrice = purchasePrice
@@ -29,6 +40,7 @@ struct Product: Identifiable, Hashable, Codable {
         self.unitsPerPackage = unitsPerPackage
         self.category = category
         self.brand = brand
+        self.purchasePriceIsProvisional = purchasePriceIsProvisional
         self.calculatedUnits = nil
     }
 }
