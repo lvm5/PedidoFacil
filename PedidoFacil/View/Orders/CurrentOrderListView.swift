@@ -29,7 +29,7 @@ struct CurrentOrderListView: View {
                                     .foregroundColor(.secondary)
                             }
 
-                            Text("Quantidade: \(String(format: "%.2f", order.quantity)) \(order.product.packageType)")
+                            Text("Quantidade: \(String(format: "%.2f", order.quantity)) \(order.product.packageType ?? "un")")
                                 .font(.caption)
 
                             Text("Total: R$ \(String(format: "%.2f", order.totalPrice))")
@@ -79,4 +79,3 @@ struct CurrentOrderListView: View {
         .padding()
     }
 }
-

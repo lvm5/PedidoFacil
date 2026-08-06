@@ -29,7 +29,7 @@ struct PriceInfoView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.primary)
                 
-                Text("por \(product.packageSize)")
+                Text("por \(product.packageSize ?? "embalagem")")
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
@@ -51,7 +51,7 @@ struct PriceInfoView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.primary)
                 
-                Text("por \(product.packageSize)")
+                Text("por \(product.packageSize ?? "embalagem")")
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
@@ -99,7 +99,7 @@ struct StatefulPreviewWrapper<Value, Content: View>: View {
     }
 }
 
-#Preview {
+#Preview(traits: .sizeThatFitsLayout) {
     StatefulPreviewWrapper(Product(
         name: "Arroz",
         purchasePrice: 20.0,
@@ -111,11 +111,9 @@ struct StatefulPreviewWrapper<Value, Content: View>: View {
     )) { product in
         PriceInfoView(product: product, secondaryColor: .purple)
             .padding()
-            .previewLayout(.sizeThatFits)
     }
 }
 #endif
-
 
 
 

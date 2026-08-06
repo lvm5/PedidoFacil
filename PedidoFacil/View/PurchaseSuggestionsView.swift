@@ -37,7 +37,7 @@ struct PurchaseSuggestionsView: View {
                             .foregroundColor(.secondary)
                     } else {
                         ForEach(viewModel.purchaseList) { product in
-                            Text("🟢 \(product.name) \(product.brand ?? "") – comprar \(product.calculatedUnits ?? 1) \(product.packageType)")
+                            Text("🟢 \(product.name) \(product.brand ?? "") – comprar \(product.calculatedUnits ?? 1) \(product.packageType ?? "un")")
                                 .font(.subheadline)
                         }
                     }
@@ -83,9 +83,8 @@ struct PurchaseSuggestionsView: View {
     }
 }
 
-#Preview {
+#Preview(traits: .sizeThatFitsLayout) {
     PurchaseSuggestionsView(primaryColor: .blue)
         .environmentObject(OrderViewModel())
         .padding()
-        .previewLayout(.sizeThatFits)
 }

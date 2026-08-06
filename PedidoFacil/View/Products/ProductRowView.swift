@@ -61,7 +61,7 @@ struct ProductRowView: View {
 }
 
 @available(iOS 18.0, *)
-#Preview {
+#Preview(traits: .sizeThatFitsLayout) {
     ProductRowView(
         product: Product(
             name: "Produto Teste",
@@ -77,5 +77,4 @@ struct ProductRowView: View {
     .environmentObject(ProductModel())
     .environmentObject(OrderViewModel())
     .padding()
-    .previewLayout(.sizeThatFits)
 }

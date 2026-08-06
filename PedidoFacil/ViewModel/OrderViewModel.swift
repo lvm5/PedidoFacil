@@ -227,7 +227,7 @@ class OrderViewModel: ObservableObject {
             let packages = Int(totalQuantity / unitsPerPackage) // arredonda pra baixo
             let remainder = totalQuantity.truncatingRemainder(dividingBy: unitsPerPackage)
             
-            text += "- \(product.name) \(product.brand ?? ""): \(packages) \(product.packageType)(s)"
+            text += "- \(product.name) \(product.brand ?? ""): \(packages) \(product.packageType ?? "un")(s)"
             if remainder > 0 {
                 text += " (restam \(String(format: "%.2f", remainder)) unidades)\n"
             } else {
